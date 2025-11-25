@@ -1,14 +1,12 @@
 package com.example.snapitout
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.view.Gravity
 import android.view.View
 import android.widget.GridLayout
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -20,26 +18,36 @@ import com.google.gson.reflect.TypeToken
 class TemplatesActivity : AppCompatActivity() {
 
     private lateinit var gridContainer: GridLayout
-    private lateinit var rvTemplates: View
     private lateinit var tvNoTemplates: TextView
-    private lateinit var floatingBtnDoc: ImageButton
-
     private val templates = mutableListOf<Template>()
     private val gson = Gson()
+    private var currentUserId = "default_user"
+
     private val prefsName = "templates_prefs"
     private val keyTemplates = "key_templates"
 
-    private val editLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+    private val viewLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK && result.data != null) {
             val data = result.data!!
-            val templateCreated = data.getBooleanExtra("templateCreated", false)
-            if (templateCreated) {
-                val id = data.getLongExtra("TEMPLATE_ID", System.currentTimeMillis())
-                val name = data.getStringExtra("TEMPLATE_NAME") ?: "Untitled"
-                val slots = data.getStringArrayListExtra("TEMPLATE_SLOTS") ?: arrayListOf()
-                val newTemplate = Template(id = id, name = name, slotUris = slots)
-                addTemplateAtTop(newTemplate)
-                Toast.makeText(this, "Template saved", Toast.LENGTH_SHORT).show()
+            val updatedId = data.getLongExtra("TEMPLATE_ID", -1L)
+            val updatedName = data.getStringExtra("TEMPLATE_NAME")
+            val updatedSlots = data.getStringArrayListExtra("TEMPLATE_SLOTS")
+            val updatedColor = data.getIntExtra("FRAME_COLOR", Color.WHITE)
+
+            if (updatedId != -1L && updatedName != null && updatedSlots != null) {
+                val index = templates.indexOfFirst { it.id == updatedId }
+                if (index != -1) {
+                    // Update existing template
+                    templates[index] = Template(updatedId, updatedName, updatedSlots, updatedColor)
+                    Toast.makeText(this, "Template updated", Toast.LENGTH_SHORT).show()
+                } else {
+                    // Add new template
+                    templates.add(Template(updatedId, updatedName, updatedSlots, updatedColor))
+                    Toast.makeText(this, "Template created", Toast.LENGTH_SHORT).show()
+                }
+                saveTemplatesToPrefs()
+                refreshGridFromTemplates()
+                updateNoTemplatesUi()
             }
         }
     }
@@ -49,109 +57,111 @@ class TemplatesActivity : AppCompatActivity() {
         setContentView(R.layout.activity_templates)
 
         gridContainer = findViewById(R.id.albumImageContainer)
-        rvTemplates = findViewById(R.id.rvTemplates)
         tvNoTemplates = findViewById(R.id.tvNoTemplates)
-        floatingBtnDoc = findViewById(R.id.btnDoc)
+
+        // Get current user ID from SharedPreferences
+        val prefs = getSharedPreferences("SnapItOutPrefs", MODE_PRIVATE)
+        currentUserId = prefs.getString("current_user_id", "default_user") ?: "default_user"
+
+        findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
+        findViewById<View>(R.id.navHome)?.setOnClickListener {
+            startActivity(Intent(this, HomePageActivity::class.java))
+            finish()
+        }
+        findViewById<View>(R.id.navArchive)?.setOnClickListener {
+            startActivity(Intent(this, AlbumActivity::class.java))
+        }
 
         loadTemplatesFromPrefs()
         refreshGridFromTemplates()
         updateNoTemplatesUi()
-
-        // Keep original floating button as a fallback opener, but hide it to avoid duplicate UI
-        floatingBtnDoc.visibility = View.GONE
-
-        findViewById<ImageButton>(R.id.btnBack).setOnClickListener { finish() }
-        findViewById<ImageButton?>(R.id.navHome)?.setOnClickListener {
-            startActivity(Intent(this, HomePageActivity::class.java))
-            finish()
-        }
     }
 
-    private fun addTemplateAtTop(template: Template) {
-        templates.add(0, template)
-        saveTemplatesToPrefs()
-        refreshGridFromTemplates()
-        updateNoTemplatesUi()
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            window.decorView.systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    )
+        }
     }
 
     private fun refreshGridFromTemplates() {
         gridContainer.removeAllViews()
 
-        // Add thumbnails for each template
+        val screenWidth = resources.displayMetrics.widthPixels
+        val itemMargin = (8 * resources.displayMetrics.density).toInt()
+        val columns = 3
+        val totalMargins = itemMargin * 2 * columns
+        val itemSize = (screenWidth - totalMargins) / columns
+
+        // Add "Create Template" tile
+        val createTile = ImageView(this).apply {
+            layoutParams = GridLayout.LayoutParams().apply {
+                width = itemSize
+                height = itemSize
+                setMargins(itemMargin, itemMargin, itemMargin, itemMargin)
+            }
+            setImageResource(R.drawable.ic_add_black)
+            setBackgroundResource(R.drawable.bg_create_template_tile)
+            scaleType = ImageView.ScaleType.CENTER
+            setOnClickListener {
+                val intent = Intent(this@TemplatesActivity, EditTemplateActivity::class.java)
+                viewLauncher.launch(intent)
+            }
+        }
+        gridContainer.addView(createTile)
+
+        // Add templates
         for ((index, template) in templates.withIndex()) {
             val uriString = template.slotUris.firstOrNull()
             val imageView = ImageView(this).apply {
                 layoutParams = GridLayout.LayoutParams().apply {
-                    width = resources.displayMetrics.widthPixels / 3 - 16
-                    height = width
-                    setMargins(8, 8, 8, 8)
-                    setGravity(Gravity.CENTER)
+                    width = itemSize
+                    height = itemSize
+                    setMargins(itemMargin, itemMargin, itemMargin, itemMargin)
                 }
                 scaleType = ImageView.ScaleType.CENTER_CROP
-                contentDescription = template.name
-                if (uriString != null) {
-                    try { setImageURI(Uri.parse(uriString)) } catch (_: Exception) {}
-                } else {
-                    // placeholder background if no image
-                    setBackgroundColor(0xFFCCCCCC.toInt())
-                }
+                setBackgroundColor(template.frameColor)
+                setImageURI(if (uriString != null) Uri.parse(uriString) else null)
                 setOnClickListener {
-                    val intent = Intent(this@TemplatesActivity, EditTemplateActivity::class.java).apply {
-                        putExtra("TEMPLATE_ID", template.id)
-                        putExtra("TEMPLATE_NAME", template.name)
-                        putStringArrayListExtra("TEMPLATE_SLOTS", ArrayList(template.slotUris))
-                    }
-                    editLauncher.launch(intent)
+                    val intent = Intent(this@TemplatesActivity, TemplateViewerActivity::class.java)
+                    intent.putExtra("TEMPLATE_ID", template.id)
+                    intent.putExtra("TEMPLATE_NAME", (index + 1).toString()) // show number only
+                    intent.putStringArrayListExtra("TEMPLATE_SLOTS", ArrayList(template.slotUris))
+                    intent.putExtra("FRAME_COLOR", template.frameColor)
+                    viewLauncher.launch(intent)
                 }
             }
             gridContainer.addView(imageView)
         }
-
-        // Add the "Add Template" tile at the end of the grid
-        val addTile = ImageButton(this).apply {
-            layoutParams = GridLayout.LayoutParams().apply {
-                width = resources.displayMetrics.widthPixels / 3 - 16
-                height = width
-                setMargins(8, 8, 8, 8)
-                setGravity(Gravity.CENTER)
-            }
-            scaleType = ImageView.ScaleType.CENTER_INSIDE
-            setImageResource(R.drawable.addbtn) // ensure this drawable exists
-            background = null
-            contentDescription = "Create Template"
-            setOnClickListener {
-                val intent = Intent(this@TemplatesActivity, EditTemplateActivity::class.java)
-                editLauncher.launch(intent)
-            }
-        }
-
-        gridContainer.addView(addTile)
     }
 
     private fun updateNoTemplatesUi() {
-        if (templates.isEmpty()) {
-            tvNoTemplates.visibility = View.VISIBLE
-            gridContainer.visibility = View.VISIBLE // show grid with only add tile
-            rvTemplates.visibility = View.GONE
-        } else {
-            tvNoTemplates.visibility = View.GONE
-            gridContainer.visibility = View.VISIBLE
-            rvTemplates.visibility = View.GONE
-        }
+        tvNoTemplates.visibility = if (templates.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun saveTemplatesToPrefs() {
-        val prefs = getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("${prefsName}_$currentUserId", Context.MODE_PRIVATE)
         val json = gson.toJson(templates)
         prefs.edit().putString(keyTemplates, json).apply()
     }
 
     private fun loadTemplatesFromPrefs() {
-        val prefs = getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("${prefsName}_$currentUserId", Context.MODE_PRIVATE)
         val json = prefs.getString(keyTemplates, null) ?: return
         val type = object : TypeToken<List<Template>>() {}.type
-        val list: List<Template> = try { gson.fromJson(json, type) } catch (_: Exception) { emptyList() }
         templates.clear()
-        templates.addAll(list)
+        templates.addAll(Gson().fromJson(json, type))
+    }
+
+    fun switchUser(newUserId: String) {
+        currentUserId = newUserId
+        templates.clear()
+        loadTemplatesFromPrefs()
+        refreshGridFromTemplates()
+        updateNoTemplatesUi()
     }
 }

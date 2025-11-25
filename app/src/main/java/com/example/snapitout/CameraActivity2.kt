@@ -6,13 +6,17 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.Surface
 import android.view.View
-import android.widget.*
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
@@ -24,13 +28,11 @@ import androidx.lifecycle.LifecycleOwner
 import java.io.File
 import java.io.FileOutputStream
 
-class CameraActivity : AppCompatActivity() {
+class CameraActivity2 : AppCompatActivity() {
 
     private lateinit var cameraPreview: PreviewView
     private lateinit var shutterButton: ImageView
     private lateinit var countdownText: TextView
-    private lateinit var homeButton: ImageView
-    private lateinit var albumButton: ImageView
 
     private val cameraPermissions = arrayOf(Manifest.permission.CAMERA)
     private var imageCapture: ImageCapture? = null
@@ -38,6 +40,10 @@ class CameraActivity : AppCompatActivity() {
 
     private val capturedPhotoFiles = mutableListOf<File>()
     private lateinit var snapItOutFolder: File
+
+    private var templateSlots = arrayListOf<String>()
+
+    private lateinit var gestureDetector: GestureDetector
 
     private val permissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -53,39 +59,35 @@ class CameraActivity : AppCompatActivity() {
         cameraPreview = findViewById(R.id.cameraPreview)
         shutterButton = findViewById(R.id.shutterButton)
         countdownText = findViewById(R.id.countdownText)
-        homeButton = findViewById(R.id.homeButton)
-        albumButton = findViewById(R.id.imageView13)
+
+        templateSlots = intent.getStringArrayListExtra("TEMPLATE_SLOTS") ?: arrayListOf()
 
         val picturesDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         snapItOutFolder = File(picturesDir, "SnapItOut")
         if (!snapItOutFolder.exists()) snapItOutFolder.mkdirs()
 
-        homeButton.setOnClickListener {
-            startActivity(Intent(this, HomePageActivity::class.java))
-            finish()
-        }
-
-        albumButton.setOnClickListener {
-            startActivity(Intent(this, AlbumActivity::class.java))
-            finish()
-        }
-
-        if (isCameraPermissionGranted()) startCamera() else permissionRequest.launch(cameraPermissions)
-
-        // Double-tap to toggle camera
-        cameraPreview.setOnTouchListener(object : View.OnTouchListener {
-            private var lastTapTime = 0L
-            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-                if (event?.action == MotionEvent.ACTION_DOWN) {
-                    val currentTime = System.currentTimeMillis()
-                    if (currentTime - lastTapTime < 300) toggleCamera()
-                    lastTapTime = currentTime
-                }
+        // GestureDetector for double-tap to switch camera
+        gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDoubleTap(e: MotionEvent): Boolean {
+                lensFacing = if (lensFacing == CameraSelector.LENS_FACING_BACK)
+                    CameraSelector.LENS_FACING_FRONT
+                else
+                    CameraSelector.LENS_FACING_BACK
+                startCamera()
+                Toast.makeText(this@CameraActivity2, "Camera switched", Toast.LENGTH_SHORT).show()
                 return true
             }
         })
 
+        cameraPreview.setOnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event)
+            true
+        }
+
         shutterButton.setOnClickListener { startCountdown() }
+
+        if (isCameraPermissionGranted()) startCamera()
+        else permissionRequest.launch(cameraPermissions)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -106,9 +108,10 @@ class CameraActivity : AppCompatActivity() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder().build().also { it.setSurfaceProvider(cameraPreview.surfaceProvider) }
+            val preview = Preview.Builder().build().also {
+                it.setSurfaceProvider(cameraPreview.surfaceProvider)
+            }
 
-            // SAFELY get rotation
             val rotation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 cameraPreview.display?.rotation ?: Surface.ROTATION_0
             } else {
@@ -116,22 +119,26 @@ class CameraActivity : AppCompatActivity() {
                 windowManager.defaultDisplay?.rotation ?: Surface.ROTATION_0
             }
 
-            imageCapture = ImageCapture.Builder().setTargetRotation(rotation).build()
-            val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+            imageCapture = ImageCapture.Builder()
+                .setTargetRotation(rotation)
+                .build()
+
+            val cameraSelector = CameraSelector.Builder()
+                .requireLensFacing(lensFacing)
+                .build()
 
             try {
                 cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(this as LifecycleOwner, cameraSelector, preview, imageCapture)
+                cameraProvider.bindToLifecycle(
+                    this as LifecycleOwner,
+                    cameraSelector,
+                    preview,
+                    imageCapture
+                )
             } catch (e: Exception) {
                 Toast.makeText(this, "Camera error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }, ContextCompat.getMainExecutor(this))
-    }
-
-    private fun toggleCamera() {
-        lensFacing = if (lensFacing == CameraSelector.LENS_FACING_BACK)
-            CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK
-        startCamera()
     }
 
     private fun startCountdown() {
@@ -143,6 +150,7 @@ class CameraActivity : AppCompatActivity() {
             override fun run() {
                 countdown--
                 countdownText.text = "$countdown"
+
                 if (countdown > 0) {
                     countdownText.postDelayed(this, 1000)
                 } else {
@@ -157,49 +165,51 @@ class CameraActivity : AppCompatActivity() {
 
     private fun capturePhoto() {
         val imageCapture = imageCapture ?: return
-
         val photoFile = File(snapItOutFolder, "IMG_${System.currentTimeMillis()}.jpg")
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
-        imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(this),
+        imageCapture.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     val rotatedBitmap = rotateImageIfRequired(
                         photoFile.absolutePath,
-                        lensFacing == CameraSelector.LENS_FACING_FRONT
+                        mirror = (lensFacing == CameraSelector.LENS_FACING_FRONT)
                     )
-                    FileOutputStream(photoFile).use { rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, it) }
+
+                    FileOutputStream(photoFile).use {
+                        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+                    }
 
                     capturedPhotoFiles.add(photoFile)
 
-                    // Automatically go to EditingActivity after 4 photos
                     if (capturedPhotoFiles.size >= 4) {
-                        goToEditingActivity()
+                        goToEventEditActivity()
                     } else {
-                        // Reset rotation in case camera preview changed
                         startCamera()
                         startCountdown()
                     }
                 }
 
                 override fun onError(exception: ImageCaptureException) {
-                    Toast.makeText(this@CameraActivity, "Capture failed: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@CameraActivity2, "Capture failed: ${exception.message}", Toast.LENGTH_SHORT).show()
                 }
             })
     }
 
-    private fun goToEditingActivity() {
-        val intent = Intent(this, EditingActivity::class.java)
-        intent.putStringArrayListExtra(
-            "photoPaths",
-            ArrayList(capturedPhotoFiles.map { it.absolutePath })
+    private fun goToEventEditActivity() {
+        val intent = Intent(this, EventEditActivity::class.java)
+        intent.putStringArrayListExtra("TEMPLATE_SLOTS", templateSlots)
+        intent.putParcelableArrayListExtra(
+            "CAPTURED_IMAGES",
+            ArrayList(capturedPhotoFiles.map { Uri.fromFile(it) })
         )
-        intent.putExtra("isFrontCamera", lensFacing == CameraSelector.LENS_FACING_FRONT)
         startActivity(intent)
         finish()
     }
 
-    private fun rotateImageIfRequired(filePath: String, mirror: Boolean = false): Bitmap {
+    private fun rotateImageIfRequired(filePath: String, mirror: Boolean): Bitmap {
         val bitmap = BitmapFactory.decodeFile(filePath)
         val exif = ExifInterface(filePath)
         val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
@@ -214,7 +224,6 @@ class CameraActivity : AppCompatActivity() {
             matrix.postScale(-1f, 1f)
             matrix.postTranslate(bitmap.width.toFloat(), 0f)
         }
-
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 }

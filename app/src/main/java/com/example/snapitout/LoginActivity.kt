@@ -1,7 +1,6 @@
 package com.example.snapitout
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
 import android.widget.*
@@ -45,18 +44,11 @@ class LoginActivity : AppCompatActivity() {
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
-
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        // ❗ Force sign out to avoid auto-login
+        // Force sign out to avoid auto-login
         googleSignInClient.signOut()
         mAuth.signOut()
-
-        // Google Sign-In with custom button
-        googleSignInCustomBtn.setOnClickListener {
-            val signInIntent = googleSignInClient.signInIntent
-            startActivityForResult(signInIntent, RC_SIGN_IN)
-        }
 
         // Toggle password visibility
         togglePasswordIcon.setOnClickListener {
@@ -83,14 +75,8 @@ class LoginActivity : AppCompatActivity() {
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             val user = mAuth.currentUser
-                            if (user != null) {
-                                // Save username and email to SharedPreferences
-                                val sharedPreferences = getSharedPreferences("SnapItOutPrefs", MODE_PRIVATE)
-                                sharedPreferences.edit().apply {
-                                    putString("username", user.displayName ?: "SnapItUser")
-                                    putString("email", user.email ?: "noemail@snapitout.com")
-                                    apply()
-                                }
+                            user?.let {
+                                saveCurrentUser(it.uid, it.displayName ?: "SnapItUser", it.email ?: "noemail@snapitout.com")
                             }
 
                             Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
@@ -107,6 +93,12 @@ class LoginActivity : AppCompatActivity() {
         goToSignUp.setOnClickListener {
             startActivity(Intent(this, SignUpActivity::class.java))
         }
+
+        // Google Sign-In button
+        googleSignInCustomBtn.setOnClickListener {
+            val signInIntent = googleSignInClient.signInIntent
+            startActivityForResult(signInIntent, RC_SIGN_IN)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -116,9 +108,7 @@ class LoginActivity : AppCompatActivity() {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val account = task.getResult(ApiException::class.java)
-                if (account != null) {
-                    firebaseAuthWithGoogle(account.idToken!!)
-                }
+                account?.idToken?.let { firebaseAuthWithGoogle(it) }
             } catch (e: ApiException) {
                 Toast.makeText(this, "Google sign in failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
@@ -131,14 +121,8 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = mAuth.currentUser
-                    if (user != null) {
-                        // Save username and email to SharedPreferences
-                        val sharedPreferences = getSharedPreferences("SnapItOutPrefs", MODE_PRIVATE)
-                        sharedPreferences.edit().apply {
-                            putString("username", user.displayName ?: "SnapItUser")
-                            putString("email", user.email ?: "noemail@snapitout.com")
-                            apply()
-                        }
+                    user?.let {
+                        saveCurrentUser(it.uid, it.displayName ?: "SnapItUser", it.email ?: "noemail@snapitout.com")
                     }
 
                     Toast.makeText(this, "Google Login Successful", Toast.LENGTH_SHORT).show()
@@ -148,5 +132,15 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(this, "Authentication Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    private fun saveCurrentUser(uid: String, displayName: String, email: String) {
+        val prefs = getSharedPreferences("SnapItOutPrefs", MODE_PRIVATE)
+        prefs.edit().apply {
+            putString("current_user_id", uid) // unique key for TemplatesActivity
+            putString("username", displayName)
+            putString("email", email)
+            apply()
+        }
     }
 }

@@ -13,7 +13,6 @@
         android:layout_height="508dp"
         android:layout_marginStart="109dp"
         android:layout_marginEnd="109dp"
-        android:background="@drawable/frame6"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

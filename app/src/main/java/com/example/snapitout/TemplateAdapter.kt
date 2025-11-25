@@ -7,35 +7,54 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 
 class TemplateAdapter(
     private val context: Context,
     private val items: MutableList<Template>,
-    private val itemClick: (Template) -> Unit
-) : RecyclerView.Adapter<TemplateAdapter.VH>() {
+    private val onTemplateClick: (Template) -> Unit,
+    private val onCreateClick: () -> Unit
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val v = LayoutInflater.from(context).inflate(R.layout.item_template_vertical_strip, parent, false)
-        return VH(v)
+    companion object {
+        private const val TYPE_CREATE = 0
+        private const val TYPE_TEMPLATE = 1
     }
 
-    override fun onBindViewHolder(holder: VH, position: Int) {
-        val t = items[position]
-        holder.name.text = t.name
-        // If you want to show thumbnail, load the first slotUri into holder.thumb using any image loader.
-        // For now keep the ImageView empty or use a placeholder resource.
-        holder.itemView.setOnClickListener { itemClick(t) }
+    override fun getItemViewType(position: Int) = if (position == 0) TYPE_CREATE else TYPE_TEMPLATE
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == TYPE_CREATE) {
+            val v = LayoutInflater.from(context).inflate(R.layout.item_template_create_tile, parent, false)
+            CreateVH(v)
+        } else {
+            val v = LayoutInflater.from(context).inflate(R.layout.item_template_vertical_strip, parent, false)
+            TemplateVH(v)
+        }
     }
 
-    override fun getItemCount(): Int = items.size
+    override fun getItemCount() = items.size + 1
 
-    fun addTemplateAtTop(template: Template) {
-        items.add(0, template)
-        notifyItemInserted(0)
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder is CreateVH) {
+            holder.itemView.setOnClickListener { onCreateClick() }
+        } else if (holder is TemplateVH) {
+            val template = items[position - 1]
+            holder.name.text = template.name
+            val thumbnailUri = template.slotUris.firstOrNull()
+            if (!thumbnailUri.isNullOrEmpty()) {
+                Glide.with(context).load(thumbnailUri).centerCrop().placeholder(R.drawable.placeholder_image).into(holder.thumb)
+            } else {
+                holder.thumb.setImageResource(R.drawable.placeholder_image)
+            }
+            holder.itemView.setOnClickListener { onTemplateClick(template) }
+        }
     }
 
-    class VH(view: View) : RecyclerView.ViewHolder(view) {
+    class TemplateVH(view: View) : RecyclerView.ViewHolder(view) {
         val name: TextView = view.findViewById(R.id.tvTemplateName)
         val thumb: ImageView = view.findViewById(R.id.ivTemplateThumb)
     }
+
+    class CreateVH(view: View) : RecyclerView.ViewHolder(view)
 }

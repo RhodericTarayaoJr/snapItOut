@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:layout_margin="4dp"
+    android:background="@drawable/bg_template_tile"
+    android:clipToPadding="true">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="Create Template"
+        android:scaleType="centerInside"
+        android:src="@drawable/addbtn"
+        android:padding="16dp"/>
+</FrameLayout>

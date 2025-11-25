@@ -1,123 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootTemplate"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5EDE0"
-    tools:context=".TemplatesActivity">
+    android:background="#F5EDE0">
 
     <!-- Back Button -->
     <ImageButton
         android:id="@+id/btnBack"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Back"
         android:rotationY="180"
         android:scaleType="fitCenter"
         android:src="@drawable/arrow2"
+        app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/tvTitle"/>
 
     <!-- Decor Icon -->
     <ImageView
         android:id="@+id/imgDecor"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:layout_marginStart="8dp"
         android:contentDescription="Decor"
         android:src="@drawable/frames"
-        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
         app:layout_constraintStart_toEndOf="@id/btnBack"
-        app:layout_constraintTop_toTopOf="@id/btnBack" />
+        app:layout_constraintTop_toTopOf="@+id/tvTitle"/>
 
     <!-- Title -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="16dp"
-        android:fontFamily="@font/lora"
         android:gravity="center"
         android:text="Templates"
         android:textColor="#000000"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@id/imgDecor"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@id/imgDecor"
+        app:layout_constraintTop_toTopOf="parent"/>
 
-    <!-- Center Area -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/centerArea"
+    <!-- No Templates Message -->
+    <TextView
+        android:id="@+id/tvNoTemplates"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No templates yet. Tap the add icon to create one."
+        android:textColor="#7A7A7A"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@+id/scrollView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+    <!-- Scrollable Grid for templates -->
+    <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        android:fillViewport="true"
         app:layout_constraintBottom_toTopOf="@+id/bottomNav"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/tvTitle">
 
-        <!-- No Templates Message -->
-        <TextView
-            android:id="@+id/tvNoTemplates"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="No templates yet. Tap the add icon to create one."
-            android:textColor="#7A7A7A"
-            android:textSize="14sp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Grid layout like AlbumActivity (use this when you want album/grid behavior) -->
         <GridLayout
             android:id="@+id/albumImageContainer"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alignmentMode="alignMargins"
             android:columnCount="3"
+            android:orientation="horizontal"
             android:padding="8dp"
-            android:visibility="visible"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Optional RecyclerView if you prefer list approach -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvTemplates"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            tools:visibility="visible"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Floating Add Template Button (bottom-end) -->
-        <ImageButton
-            android:id="@+id/btnDoc"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Create Template"
-            android:scaleType="fitCenter"
-            android:src="@drawable/addbtn"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.25"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.22000003" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:useDefaultMargins="true" />
+    </ScrollView>
 
     <!-- Bottom Navigation -->
     <LinearLayout
@@ -140,12 +107,12 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Home"
             android:scaleType="fitCenter"
-            android:src="@drawable/home" />
+            android:src="@drawable/home"/>
 
         <View
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"/>
 
         <ImageButton
             android:id="@+id/navArchive"
@@ -154,6 +121,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Archive"
             android:scaleType="fitCenter"
-            android:src="@drawable/album" />
+            android:src="@drawable/album"/>
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

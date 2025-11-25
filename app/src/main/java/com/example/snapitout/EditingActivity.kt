@@ -5,7 +5,6 @@ import android.graphics.*
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.*
@@ -29,6 +28,7 @@ class EditingActivity : AppCompatActivity() {
     private lateinit var mainFrames: List<ImageView>
 
     private lateinit var frameContainer: View
+    private lateinit var currentUserId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +67,10 @@ class EditingActivity : AppCompatActivity() {
             findViewById(R.id.mainFrame3),
             findViewById(R.id.mainFrame4)
         )
+
+        // ✅ Load current user
+        val prefs = getSharedPreferences("SnapItOutPrefs", MODE_PRIVATE)
+        currentUserId = prefs.getString("current_user_id", "default_user") ?: "default_user"
 
         val selectedUris = intent.getParcelableArrayListExtra<Uri>("selected_images")
         val photoPaths = intent.getStringArrayListExtra("photoPaths")
@@ -141,7 +145,7 @@ class EditingActivity : AppCompatActivity() {
         }
 
         saveButton.setOnClickListener {
-            saveCollage()
+            saveCollageToAlbum()
         }
 
         retakeButton.setOnClickListener {
@@ -150,8 +154,8 @@ class EditingActivity : AppCompatActivity() {
         }
     }
 
-    /** ✅ Updated saveCollage() */
-    private fun saveCollage() {
+    /** ✅ Save edited collage to user-specific album */
+    private fun saveCollageToAlbum() {
         frameContainer.post {
             val width = frameContainer.width
             val height = frameContainer.height
@@ -168,8 +172,8 @@ class EditingActivity : AppCompatActivity() {
             val filename = "SnapIt_Collage_${System.currentTimeMillis()}.jpg"
 
             try {
-                // ✅ Use the same album folder as AlbumActivity
-                val albumFolder = File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "SnapItOut")
+                // ✅ User-specific album folder
+                val albumFolder = File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "SnapItOut_$currentUserId")
                 if (!albumFolder.exists()) albumFolder.mkdirs()
 
                 val file = File(albumFolder, filename)
@@ -180,13 +184,13 @@ class EditingActivity : AppCompatActivity() {
 
                 if (!success) throw Exception("Bitmap compression failed")
 
-                // ✅ Notify the system gallery (optional)
+                // Optional: notify gallery
                 val uri = Uri.fromFile(file)
                 sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri))
 
-                Toast.makeText(this, "Collage saved to album!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Collage saved to your album!", Toast.LENGTH_SHORT).show()
 
-                // ✅ Launch SharingActivity with saved collage URI
+                // Launch SharingActivity with saved URI
                 val shareIntent = Intent(this, SharingActivity::class.java).apply {
                     putExtra("saved_collage_uri", uri.toString())
                 }
@@ -194,7 +198,7 @@ class EditingActivity : AppCompatActivity() {
                 finish()
 
             } catch (e: Exception) {
-                Log.e("SaveCollage", "Error saving collage", e)
+                Log.e("EditingActivity", "Error saving collage", e)
                 Toast.makeText(this, "Failed to save collage: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }

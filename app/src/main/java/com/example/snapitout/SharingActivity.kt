@@ -15,6 +15,7 @@ class SharingActivity : AppCompatActivity() {
     private lateinit var mainFrames: List<ImageView>
     private lateinit var cameraButton: ImageView
     private lateinit var homeButton: ImageView
+    private lateinit var albumButton: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,58 +29,60 @@ class SharingActivity : AppCompatActivity() {
         // Buttons for navigation
         cameraButton = findViewById(R.id.camcam)
         homeButton = findViewById(R.id.homehome)
+        albumButton = findViewById(R.id.albumBtn)
 
-        // Try to receive new "sharedImagePaths" from EditingActivity
-        val sharedImagePaths = intent.getStringArrayListExtra("sharedImagePaths")
+        // ✅ Try to receive new "saved_collage_uri" from EditingActivity
+        val savedCollageUri = intent.getStringExtra("saved_collage_uri")
 
-        if (!sharedImagePaths.isNullOrEmpty()) {
-            // Loop through the shared image paths and display them
-            for (i in sharedImagePaths.indices) {
-                if (i < mainFrames.size) {
-                    val imagePath = sharedImagePaths[i]
-                    val uri = Uri.parse(imagePath)
+        if (!savedCollageUri.isNullOrEmpty()) {
+            val uri = Uri.parse(savedCollageUri)
 
-                    // Check if it's a content URI (for scoped storage)
-                    if (imagePath.startsWith("content://")) {
-                        val inputStream = contentResolver.openInputStream(uri)
-                        val bitmap = BitmapFactory.decodeStream(inputStream)
-                        mainFrames[i].setImageBitmap(bitmap)
-                        mainFrames[i].visibility = View.VISIBLE
-                    } else {
-                        val file = File(imagePath)
-                        if (file.exists()) {
-                            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-                            mainFrames[i].setImageBitmap(bitmap)
-                            mainFrames[i].visibility = View.VISIBLE
-                        } else {
-                            Toast.makeText(this, "Image file not found at: $imagePath", Toast.LENGTH_SHORT).show()
-                            mainFrames[i].visibility = View.GONE
-                        }
-                    }
+            // Check if it's a content URI (for scoped storage)
+            if (savedCollageUri.startsWith("content://")) {
+                try {
+                    val inputStream = contentResolver.openInputStream(uri)
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+                    mainFrames[0].setImageBitmap(bitmap)
+                    mainFrames[0].visibility = View.VISIBLE
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Error loading image", Toast.LENGTH_SHORT).show()
+                    mainFrames[0].visibility = View.GONE
+                }
+            } else {
+                // Handle file path (same as AlbumActivity)
+                val file = File(uri.path ?: "")
+                if (file.exists()) {
+                    val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                    mainFrames[0].setImageBitmap(bitmap)
+                    mainFrames[0].visibility = View.VISIBLE
+                } else {
+                    Toast.makeText(this, "Image not found at: ${file.path}", Toast.LENGTH_SHORT).show()
+                    mainFrames[0].visibility = View.GONE
                 }
             }
 
-            // Optionally hide the remaining ImageViews if there are fewer images than ImageViews
-            for (i in sharedImagePaths.size until mainFrames.size) {
-                mainFrames[i].visibility = View.GONE
-            }
-
         } else {
-            Toast.makeText(this, "No images received to display", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "No saved image received", Toast.LENGTH_SHORT).show()
         }
 
-        // Set onClick listener for Camera Button
+        // 📸 Camera Button → Go back to camera
         cameraButton.setOnClickListener {
             val intent = Intent(this, CameraActivity::class.java)
             startActivity(intent)
         }
 
-        // Set onClick listener for Home Button
+        // 🏠 Home Button → Go to home page
         homeButton.setOnClickListener {
             val intent = Intent(this, HomePageActivity::class.java)
             startActivity(intent)
         }
+
+        albumButton.setOnClickListener {
+            val intent = Intent(this, AlbumActivity::class.java)
+            startActivity(intent)
+        }
     }
+
     private fun hideSystemUI() {
         window.decorView.systemUiVisibility = (
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY

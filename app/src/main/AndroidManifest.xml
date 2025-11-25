@@ -80,10 +80,10 @@
         <activity android:name=".AlbumActivity" android:exported="true" />
 
         <!-- 🧩 FullScreen Activity -->
-        <activity android:name=".FullScreenImageActivity" />
+        <activity android:name=".FullScreenImageActivity" android:exported="true" />
 
         <!-- 🧩 Photo Collab Activity -->
-        <activity android:name=".PhotoCollabActivity" />
+        <activity android:name=".PhotoCollabActivity" android:exported="true" />
 
         <!-- 🖌 Guest Book Activity -->
         <activity android:name=".GuestBookActivity" android:exported="true" />
@@ -93,6 +93,20 @@
 
         <!-- 🖌 Edit Templates Activity -->
         <activity android:name=".EditTemplateActivity" android:exported="true" />
+
+        <!-- 🖌 Templates Viewer Activity -->
+        <activity android:name=".TemplateViewerActivity" android:exported="true" />
+
+        <activity android:name=".EventEditActivity" android:exported="true" />
+
+        <!-- 📸 Camera Activity2 -->
+        <activity android:name=".CameraActivity2" android:exported="true" />
+
+        <!-- 📸 PdfPreviewActivity -->
+        <activity android:name=".PdfPreviewActivity" android:exported="true" />
+
+        <!-- 📸 PrintPreviewActivity -->
+        <activity android:name=".PrintPreviewActivity" android:exported="true" />
 
 
 

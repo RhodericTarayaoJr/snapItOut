@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/camera_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FAF1E2"
+    tools:context=".CameraActivity2">
+
+    <!-- Header Logo -->
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/materialToolbar7"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:background="#E9D0BC"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/materialToolbar16"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:background="#E9D0BC"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <ImageView
+        android:id="@+id/homeButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.99"
+        app:srcCompat="@drawable/home" />
+
+    <ImageView
+        android:id="@+id/imageView13"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.9"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.997"
+        app:srcCompat="@drawable/album" />
+
+    <!-- Filter Info Section -->
+
+    <ImageView
+        android:id="@+id/logoImage"
+        android:layout_width="69dp"
+        android:layout_height="57dp"
+        android:src="@drawable/logologo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/filterInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.179">
+
+        <!-- 4 Photos Info -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/rounded_background"
+            android:gravity="center|center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <ImageView
+                android:layout_width="45dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/four_photos" />
+
+            <TextView
+                android:layout_width="112dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/lora"
+                android:padding="0dp"
+                android:text="4 Photos"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Timer Info -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:layout_marginEnd="20dp"
+            android:layout_weight="1"
+            android:background="@drawable/rounded_background"
+            android:gravity="center|center_vertical"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <ImageView
+                android:layout_width="41dp"
+                android:layout_height="41dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/clock" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/lora"
+                android:padding="1dp"
+                android:text="3 Seconds"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <FrameLayout
+        android:id="@+id/previewContainer"
+        android:layout_width="match_parent"
+        android:layout_height="376dp"
+        android:layout_marginTop="25dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/filterInfo"
+        app:layout_constraintVertical_bias="0.0">
+
+        <androidx.camera.view.PreviewView
+            android:id="@+id/cameraPreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+
+        <TextView
+            android:id="@+id/countdownText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:background="@android:color/transparent"
+            android:shadowColor="#000"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="4"
+            android:text="3"
+            android:textColor="@android:color/white"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/shutterButton"
+        android:layout_width="314dp"
+        android:layout_height="90dp"
+        android:src="@drawable/shutter"
+        app:layout_constraintBottom_toTopOf="@+id/materialToolbar7"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/previewContainer" />
+
+    <TextView
+        android:id="@+id/textView15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="114dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="114dp"
+        android:layout_marginBottom="21dp"
+        android:fontFamily="@font/baloo_tamma"
+        android:text="Snap It Out"
+        android:textColor="#CF9984"
+        android:textSize="36sp"
+        app:layout_constraintBottom_toTopOf="@+id/filterInfo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/materialToolbar16" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

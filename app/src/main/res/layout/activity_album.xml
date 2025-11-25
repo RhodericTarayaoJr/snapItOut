@@ -77,17 +77,19 @@
             android:useDefaultMargins="true" />
     </ScrollView>
 
-    <!-- Collage Buttons (Moved Outside Bottom Toolbar) -->
+    <!-- Collage Buttons -->
     <LinearLayout
         android:id="@+id/collageButtonGroup"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
         app:layout_constraintBottom_toTopOf="@id/materialToolbar2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+        <!-- Auto Collage Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/autoCollageButton"
             android:layout_width="0dp"
@@ -95,68 +97,41 @@
             android:layout_weight="1"
             android:backgroundTint="#E9D0BC"
             android:fontFamily="@font/lora"
-            android:text="Auto"
+            android:text="Auto Collage"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="10sp"
             android:textStyle="bold"
             app:cornerRadius="12dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/scrapbookCollageButton"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginHorizontal="4dp"
-            android:layout_weight="1"
-            android:backgroundTint="#E9D0BC"
-            android:fontFamily="@font/lora"
-            android:text="Scrapbook"
-            android:textAlignment="gravity"
-            android:textColor="@color/black"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            app:cornerRadius="12dp" />
-
+        <!-- Shape Collage Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/shapeCollageButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginHorizontal="4dp"
+            android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:backgroundTint="#E9D0BC"
             android:fontFamily="@font/lora"
-            android:text="Shape"
+            android:text="Shape Collage"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="10sp"
             android:textStyle="bold"
             app:cornerRadius="12dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/aiScrapbookButton"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:backgroundTint="#E9D0BC"
-            android:fontFamily="@font/lora"
-            android:gravity="center"
-            android:text="AI Scrapbook"
-            android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            app:cornerRadius="12dp" />
     </LinearLayout>
 
     <!-- Bottom Toolbar (Home Button Inside) -->
+
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/materialToolbar2"
         android:layout_width="match_parent"
         android:layout_height="58dp"
         android:background="#E9D0BC"
+        android:paddingRight="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent">
 
         <ImageView
@@ -164,14 +139,26 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_gravity="center_vertical|start"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:contentDescription="Home Button"
             android:focusable="true"
             android:padding="6dp"
             app:srcCompat="@drawable/home"
             tools:layout_editor_absoluteX="16dp"
-            tools:layout_editor_absoluteY="9dp" />
+            tools:layout_editor_absoluteY="4dp" />
+
+        <ImageView
+            android:id="@+id/printButton2"
+            android:layout_width="70dp"
+            android:layout_height="65dp"
+            android:layout_gravity="end"
+            android:clickable="true"
+            android:contentDescription="Print Button"
+            android:focusable="true"
+            app:srcCompat="@drawable/print"
+            tools:layout_editor_absoluteX="338dp"
+            tools:layout_editor_absoluteY="791dp" />
     </com.google.android.material.appbar.MaterialToolbar>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
