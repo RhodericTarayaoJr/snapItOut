@@ -95,394 +95,394 @@
             android:layout_height="wrap_content"
             android:paddingBottom="50dp">
 
+
+            <ImageView
+                android:id="@+id/frameContainer1"
+                android:layout_width="150dp"
+                android:layout_height="460dp"
+                android:layout_marginTop="20dp"
+                android:scaleType="fitCenter"
+                android:background="@drawable/frame1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.12"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <!-- Frame 2 -->
             <ImageView
                 android:id="@+id/frameContainer2"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame2"
+                android:background="@drawable/frame2"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.88"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- Frame 3 -->
+            <!-- Frame 4 -->
             <ImageView
                 android:id="@+id/frameContainer3"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
+                android:background="@drawable/frame3"
                 android:scaleType="fitCenter"
-                android:src="@drawable/frame3"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.12"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/frameContainer1" />
 
-            <!-- Frame 4 -->
+            <!-- Frame 5 -->
             <ImageView
                 android:id="@+id/frameContainer4"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame4"
+                android:background="@drawable/frame4"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.88"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer2" />
 
-            <!-- Frame 5 -->
+            <!-- Frame 6 -->
             <ImageView
                 android:id="@+id/frameContainer5"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame5"
+                android:background="@drawable/frame5"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.12"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer3" />
 
-            <!-- Frame 6 -->
+            <!-- Frame 7 -->
             <ImageView
                 android:id="@+id/frameContainer6"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame6"
+                android:background="@drawable/frame6"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.88"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer4" />
 
-            <!-- Frame 7 -->
+            <!-- Frame 8 -->
             <ImageView
                 android:id="@+id/frameContainer7"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame7"
+                android:background="@drawable/frame7"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.12"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer5" />
 
-            <!-- Frame 8 -->
+            <!-- Frame 9 -->
             <ImageView
                 android:id="@+id/frameContainer8"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame8"
+                android:background="@drawable/frame8"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.88"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer6" />
 
-            <!-- Frame 9 -->
+            <!-- Frame 10 -->
             <ImageView
                 android:id="@+id/frameContainer9"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame9"
+                android:background="@drawable/frame9"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.12"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer7" />
 
-            <!-- Frame 10 -->
+            <!-- Frame 11 -->
             <ImageView
                 android:id="@+id/frameContainer10"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame10"
+                android:background="@drawable/frame10"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.88"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer8" />
 
-            <!-- Frame 11 -->
+            <!-- Frame 12 -->
             <ImageView
                 android:id="@+id/frameContainer11"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame11"
+                android:background="@drawable/frame11"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.12"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer9" />
 
-            <!-- Frame 12 -->
+            <!-- Frame 13 -->
             <ImageView
                 android:id="@+id/frameContainer12"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame12"
+                android:background="@drawable/frame12"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.88"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/frameContainer10" />
+                app:layout_constraintTop_toBottomOf="@+id/frameContainer10"/>
 
-            <!-- Frame 13 -->
+            <!-- Frame 14 -->
             <ImageView
                 android:id="@+id/frameContainer13"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame13"
+                android:background="@drawable/frame13"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.12"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer11" />
 
-            <!-- Frame 14 -->
+            <!-- Frame 15 -->
             <ImageView
                 android:id="@+id/frameContainer14"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame14"
+                android:background="@drawable/frame14"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.88"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer12" />
 
-            <!-- Frame 15 -->
+            <!-- Frame 16 -->
             <ImageView
                 android:id="@+id/frameContainer15"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame15"
+                android:background="@drawable/frame15"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.12"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer13" />
 
-            <!-- Frame 16 -->
+            <!-- Frame 17 -->
             <ImageView
                 android:id="@+id/frameContainer16"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame16"
+                android:background="@drawable/frame16"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.88"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer14" />
 
-            <!-- Frame 17 -->
+            <!-- Frame 18 -->
             <ImageView
                 android:id="@+id/frameContainer17"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame17"
+                android:background="@drawable/frame17"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.12"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer15" />
 
-            <!-- Frame 18 -->
+            <!-- Frame 19 -->
             <ImageView
                 android:id="@+id/frameContainer18"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame18"
+                android:background="@drawable/frame18"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.88"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer16" />
 
-            <!-- Frame 19 -->
+            <!-- Frame 20 -->
             <ImageView
                 android:id="@+id/frameContainer19"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame19"
+                android:background="@drawable/frame19"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.12"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer17" />
 
-            <!-- Frame 20 -->
+            <!-- Frame 21 -->
             <ImageView
                 android:id="@+id/frameContainer20"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame20"
+                android:background="@drawable/frame20"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.88"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer18" />
 
-            <!-- Frame 21 -->
+            <!-- Frame 22 -->
             <ImageView
                 android:id="@+id/frameContainer21"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame21"
+                android:background="@drawable/frame21"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.12"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer19" />
 
-            <!-- Frame 22 -->
+            <!-- Frame 23 -->
             <ImageView
                 android:id="@+id/frameContainer22"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame22"
+                android:background="@drawable/frame22"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.88"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer20" />
 
-            <!-- Frame 23 -->
+            <!-- Frame 24 -->
             <ImageView
                 android:id="@+id/frameContainer23"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame23"
+                android:background="@drawable/frame23"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.12"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer21" />
 
-            <!-- Frame 24 -->
+            <!-- Frame 25 -->
             <ImageView
                 android:id="@+id/frameContainer24"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame24"
+                android:background="@drawable/frame24"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.88"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer22" />
 
-            <!-- Frame 25 -->
+            <!-- Frame 26 -->
             <ImageView
                 android:id="@+id/frameContainer25"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/frame25"
+                android:background="@drawable/frame25"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.12"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer23" />
 
-            <!-- Frame 26 -->
+            <!-- Frame 27 -->
             <ImageView
                 android:id="@+id/frameContainer26"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/fsticker1"
+                android:background="@drawable/frame26"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.88"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer24" />
 
-            <!-- Frame 27 -->
+            <!-- Frame 28 -->
             <ImageView
                 android:id="@+id/frameContainer27"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/fsticker2"
+                android:background="@drawable/frame27"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.12"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer25" />
 
-            <!-- Frame 28 -->
+            <!-- Frame 29 -->
             <ImageView
                 android:id="@+id/frameContainer28"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/fsticker3"
+                android:background="@drawable/frame28"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.88"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer26" />
 
-            <!-- Frame 29 -->
+            <!-- Frame 30 -->
             <ImageView
                 android:id="@+id/frameContainer29"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/fsticker4"
+                android:background="@drawable/frame29"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.12"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer27" />
 
-            <!-- Frame 30 -->
             <ImageView
                 android:id="@+id/frameContainer30"
                 android:layout_width="150dp"
                 android:layout_height="460dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/fsticker5"
+                android:background="@drawable/frame30"
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.88"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/frameContainer28" />
-
-            <ImageView
-                android:id="@+id/frameContainer31"
-                android:layout_width="150dp"
-                android:layout_height="460dp"
-                android:layout_marginTop="20dp"
-                android:src="@drawable/frame31"
-                android:scaleType="fitCenter"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.12"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/frameContainer29" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

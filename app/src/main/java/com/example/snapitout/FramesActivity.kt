@@ -38,6 +38,7 @@ class FramesActivity : AppCompatActivity() {
 
         // 🎨 Frame Containers
         val frameList = listOf(
+            R.id.frameContainer1,
             R.id.frameContainer2,
             R.id.frameContainer3,
             R.id.frameContainer4,
@@ -66,12 +67,12 @@ class FramesActivity : AppCompatActivity() {
             R.id.frameContainer27,
             R.id.frameContainer28,
             R.id.frameContainer29,
-            R.id.frameContainer30,
-            R.id.frameContainer31
+            R.id.frameContainer30
 
         )
 
         val frameImages = listOf(
+            R.drawable.frame1,
             R.drawable.frame2,
             R.drawable.frame3,
             R.drawable.frame4,
@@ -96,12 +97,11 @@ class FramesActivity : AppCompatActivity() {
             R.drawable.frame23,
             R.drawable.frame24,
             R.drawable.frame25,
-            R.drawable.fsticker1,
-            R.drawable.fsticker2,
-            R.drawable.fsticker3,
-            R.drawable.fsticker4,
-            R.drawable.fsticker5,
-            R.drawable.frame31
+            R.drawable.frame26,
+            R.drawable.frame27,
+            R.drawable.frame28,
+            R.drawable.frame29,
+            R.drawable.frame30
         )
 
         frameList.forEachIndexed { index, frameId ->

@@ -127,7 +127,7 @@ class EditingActivity : AppCompatActivity() {
 
         // Background colors
         val backgroundImages = listOf(
-            R.drawable.frame31, R.drawable.frame2, R.drawable.frame3,
+            R.drawable.frame1, R.drawable.frame2, R.drawable.frame3,
             R.drawable.frame4, R.drawable.frame5, R.drawable.frame6
         )
         colorCircles.forEachIndexed { index, view ->
@@ -139,8 +139,8 @@ class EditingActivity : AppCompatActivity() {
 
         // Stickers
         val stickerBackgrounds = listOf(
-            R.drawable.fsticker1, R.drawable.fsticker2,
-            R.drawable.fsticker3, R.drawable.fsticker4, R.drawable.fsticker5
+            R.drawable.frame26, R.drawable.frame27,
+            R.drawable.frame28, R.drawable.frame29, R.drawable.frame30
         )
         stickers.forEachIndexed { index, sticker ->
             sticker.setOnClickListener {
