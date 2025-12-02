@@ -4,10 +4,11 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Log
+import android.util.TypedValue
 import android.view.View
+import android.widget.GridLayout
 import android.widget.ImageView
-import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import java.io.File
 
@@ -17,8 +18,9 @@ class GuestBookActivity : AppCompatActivity() {
     private lateinit var albumIcon: ImageView
     private lateinit var backArrow: ImageView
 
-    private lateinit var guestbookContainer: LinearLayout
+    private lateinit var guestbookGrid: GridLayout
     private lateinit var sp: SharedPreferences
+    private lateinit var currentUserId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,11 +31,17 @@ class GuestBookActivity : AppCompatActivity() {
         albumIcon = findViewById(R.id.imageView21)
         backArrow = findViewById(R.id.imageView29)
 
-        // Guestbook container
-        guestbookContainer = findViewById(R.id.guestbookContainer)
-        sp = getSharedPreferences("GUESTBOOK_DATA", MODE_PRIVATE)
+        // Guestbook GridLayout inside ScrollView
+        guestbookGrid = findViewById(R.id.guestbookContainer)
+        guestbookGrid.columnCount = 2
 
-        // Load saved images
+        // Get current logged-in user ID
+        val prefs = getSharedPreferences("SnapItOutPrefs", MODE_PRIVATE)
+        currentUserId = prefs.getString("current_user_id", "default_user") ?: "default_user"
+
+        // Use user-specific SharedPreferences for guestbook
+        sp = getSharedPreferences("GUESTBOOK_DATA_$currentUserId", MODE_PRIVATE)
+
         loadGuestbookImages()
 
         homeIcon.setOnClickListener {
@@ -49,51 +57,70 @@ class GuestBookActivity : AppCompatActivity() {
         }
     }
 
-    // 🔥 PARA PAG BALIK MO SA GUESTBOOK, LALABAS AGAD ANG BAGONG IMAGE
     override fun onResume() {
         super.onResume()
         loadGuestbookImages()
     }
 
     private fun loadGuestbookImages() {
-        guestbookContainer.removeAllViews()
+        guestbookGrid.removeAllViews()
 
-        val paths = sp.getStringSet("IMAGES", emptySet()) ?: emptySet()
-
-        Log.d("GUESTBOOK", "Loaded saved paths: $paths")
-
+        val paths = sp.getStringSet("IMAGES", emptySet())?.toList() ?: emptyList()
         if (paths.isEmpty()) {
-            Log.d("GUESTBOOK", "NO IMAGES FOUND")
+            Toast.makeText(this, "No guestbook entries yet!", Toast.LENGTH_SHORT).show()
             return
         }
 
-        for (path in paths.sorted()) {
+        val sortedPaths = paths.sortedDescending()
 
+        val marginInPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
+
+        for (path in sortedPaths) {
             val file = File(path)
-            if (!file.exists()) {
-                Log.e("GUESTBOOK", "FILE NOT FOUND: $path")
-                continue
+            if (!file.exists()) continue
+
+            val bmp = BitmapFactory.decodeFile(path) ?: continue
+
+            val img = ImageView(this).apply {
+                setImageBitmap(bmp)
+                adjustViewBounds = true
+                scaleType = ImageView.ScaleType.FIT_CENTER
+
+                // **Use weight for equal column width**
+                layoutParams = GridLayout.LayoutParams().apply {
+                    width = 0
+                    height = GridLayout.LayoutParams.WRAP_CONTENT
+                    columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                    setMargins(marginInPx, marginInPx, marginInPx, marginInPx)
+                }
             }
 
-            val bmp = BitmapFactory.decodeFile(path)
-            if (bmp != null) {
+            guestbookGrid.addView(img)
+        }
+    }
 
-                val img = ImageView(this)
-                img.setImageBitmap(bmp)
-                img.adjustViewBounds = true
-                img.scaleType = ImageView.ScaleType.FIT_CENTER
 
-                val params = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-                params.setMargins(20, 30, 20, 30)
+    /** Save an image to the current user's guestbook */
+    fun saveImageToGuestBook(imageFile: File) {
+        if (!imageFile.exists()) return
 
-                guestbookContainer.addView(img, params)
+        try {
+            // Get current set and make mutable copy
+            val savedPaths = sp.getStringSet("IMAGES", emptySet())?.toMutableSet() ?: mutableSetOf()
 
-            } else {
-                Log.e("GUESTBOOK", "ERROR DECODING BITMAP: $path")
-            }
+            // Add new image
+            savedPaths.add(imageFile.absolutePath)
+
+            // Save back to SharedPreferences
+            sp.edit().putStringSet("IMAGES", savedPaths).apply()
+
+            // Reload UI
+            loadGuestbookImages()
+
+            Toast.makeText(this, "Image added to guestbook!", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Failed to save image: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 

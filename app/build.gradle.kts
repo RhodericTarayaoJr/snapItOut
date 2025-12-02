@@ -43,6 +43,35 @@ android {
 
 dependencies {
 
+    implementation ("com.google.mlkit:segmentation-selfie:16.0.0-beta3")
+
+    implementation ("androidx.core:core-splashscreen:1.0.1")
+
+    implementation ("androidx.camera:camera-core:1.2.3")
+    implementation ("androidx.camera:camera-camera2:1.2.3")
+    implementation ("androidx.camera:camera-lifecycle:1.2.3")
+    implementation ("androidx.camera:camera-view:1.2.3")
+
+    implementation ("androidx.recyclerview:recyclerview:1.3.0")
+    implementation ("com.github.bumptech.glide:glide:4.15.1")
+
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    implementation("com.google.firebase:firebase-firestore-ktx")
+
+    kapt ("com.github.bumptech.glide:compiler:4.15.1")
+
+    // CameraX (you probably already have these)
+    implementation ("androidx.camera:camera-core:1.2.2")
+    implementation ("androidx.camera:camera-camera2:1.2.2")
+    implementation ("androidx.camera:camera-lifecycle:1.2.2")
+    implementation ("androidx.camera:camera-view:1.2.2")
+
+
+// (Optional) if you don't already have these core libs
+    implementation ("com.google.android.material:material:1.9.0")
+    implementation ("androidx.core:core-ktx:1.10.1")
+
+
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
     implementation("com.squareup.okhttp3:okhttp-urlconnection:4.9.0")
 
@@ -54,7 +83,7 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.0")
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
 
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
 

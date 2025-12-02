@@ -19,7 +19,9 @@
         <androidx.camera.view.PreviewView
             android:id="@+id/cameraPreview1"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent" >
+
+        </androidx.camera.view.PreviewView>
 
         <ImageView
             android:id="@+id/overlayImage1"
@@ -128,24 +130,24 @@
     <ImageView
         android:id="@+id/imageView23"
         android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/materialToolbar14"
         app:layout_constraintVertical_bias="0.99"
         app:srcCompat="@drawable/home" />
 
     <ImageView
         android:id="@+id/imageView24"
         android:layout_width="45dp"
-        android:layout_height="45dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.9"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/materialToolbar14"
         app:layout_constraintVertical_bias="0.997"
         app:srcCompat="@drawable/album" />
 
@@ -186,9 +188,8 @@
         android:id="@+id/imageView25"
         android:layout_width="69dp"
         android:layout_height="57dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/materialToolbar17"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
@@ -196,17 +197,16 @@
 
     <TextView
         android:id="@+id/textView9"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:fontFamily="@font/baloo_tamma"
+        android:gravity="center"
         android:text="Snap-It-Out"
         android:textColor="#CF9984"
         android:textSize="36sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/frameLayout1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.089" />
+        app:layout_constraintTop_toBottomOf="@+id/materialToolbar17" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

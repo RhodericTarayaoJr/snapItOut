@@ -57,7 +57,7 @@ class EditTemplateActivity : AppCompatActivity() {
         btnAddSticker = findViewById(R.id.btnAddSticker)
         btnAddImage = findViewById(R.id.btnAddImage)
         btnColorPicker = findViewById(R.id.btnColorPicker)
-        frameContainer = findViewById(R.id.frameContainer)
+        frameContainer = findViewById(R.id.frameContainer1)
         saveButton = findViewById(R.id.SaveButton)
         navHome = findViewById(R.id.navHome)
         navAlbum = findViewById(R.id.navAlbum)
@@ -180,7 +180,7 @@ class EditTemplateActivity : AppCompatActivity() {
         saveButton.setOnClickListener { saveTemplate() }
 
         navHome.setOnClickListener {
-            startActivity(Intent(this, HomePageActivity::class.java))
+            startActivity(Intent(this, ExclusiveActivity::class.java))
             finish()
         }
 

@@ -7,7 +7,9 @@ import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -37,8 +39,10 @@ class EventEditActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_event_edit)
 
+
+
         outerFrameContainer = findViewById(R.id.outerFrameContainer)
-        frameContainer = findViewById(R.id.frameContainer)
+        frameContainer = findViewById(R.id.frameContainer1)
         mainFrames = listOf(
             findViewById(R.id.mainFrame1),
             findViewById(R.id.mainFrame2),
@@ -73,6 +77,19 @@ class EventEditActivity : AppCompatActivity() {
 
         saveBtn.setOnClickListener { saveFinalImage() }
         printBtn.setOnClickListener { generateFixedPdfAndPreview() }
+
+        setupEditTexts()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            window.decorView.systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    )
+        }
     }
 
     private fun loadCapturedImages() {
@@ -131,14 +148,19 @@ class EventEditActivity : AppCompatActivity() {
         val bitmap = createBitmapFromView(outerFrameContainer)
         val file = File(getExternalFilesDir(null), "guestbook_${System.currentTimeMillis()}.png")
         FileOutputStream(file).use { out -> bitmap.compress(Bitmap.CompressFormat.PNG, 100, out) }
+
         saveImagePath(file.absolutePath)
+
         Toast.makeText(this, "Saved to Guestbook!", Toast.LENGTH_SHORT).show()
         startActivity(Intent(this, GuestBookActivity::class.java))
         finish()
     }
 
     private fun saveImagePath(path: String) {
-        val sp = getSharedPreferences("GUESTBOOK_DATA", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("SnapItOutPrefs", MODE_PRIVATE)
+        val currentUserId = prefs.getString("current_user_id", "default_user") ?: "default_user"
+
+        val sp = getSharedPreferences("GUESTBOOK_DATA_$currentUserId", Context.MODE_PRIVATE)
         val list = sp.getStringSet("IMAGES", mutableSetOf())!!.toMutableSet()
         list.add(path)
         sp.edit().putStringSet("IMAGES", list).apply()
@@ -161,8 +183,6 @@ class EventEditActivity : AppCompatActivity() {
     // ================= PDF GENERATION AND PREVIEW =================
     private fun generateFixedPdfAndPreview() {
         val bitmapToPrint = createBitmapFromFrameContainer()
-
-        // ✅ Fixed output size: 3600x1800 px (≈12x6 in @ 300 DPI)
         val pdfWidth = 3600
         val pdfHeight = 1800
 
@@ -170,10 +190,8 @@ class EventEditActivity : AppCompatActivity() {
         val pageInfo = PdfDocument.PageInfo.Builder(pdfWidth, pdfHeight, 1).create()
         val page = pdf.startPage(pageInfo)
 
-        // White background
         page.canvas.drawColor(Color.WHITE)
 
-        // Scale proportionally
         val scale = minOf(
             pdfWidth.toFloat() / bitmapToPrint.width,
             pdfHeight.toFloat() / bitmapToPrint.height
@@ -182,8 +200,6 @@ class EventEditActivity : AppCompatActivity() {
         val drawHeight = (bitmapToPrint.height * scale).toInt()
 
         val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
-
-        // ✅ Always upper-left (0,0)
         page.canvas.drawBitmap(
             Bitmap.createScaledBitmap(bitmapToPrint, drawWidth, drawHeight, true),
             0f, 0f, paint
@@ -198,5 +214,46 @@ class EventEditActivity : AppCompatActivity() {
         val previewIntent = Intent(this, PdfPreviewActivity::class.java)
         previewIntent.putExtra("PDF_PATH", file.absolutePath)
         startActivity(previewIntent)
+    }
+
+    // ================== EDITTEXT HANDLING ==================
+    private fun setupEditTexts() {
+
+        fun hideKeyboardAndCursor(editText: EditText) {
+
+            // MAIN FIX → detect Enter key directly
+            editText.setOnKeyListener { v, keyCode, event ->
+                if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+
+                    // REMOVE CURSOR COMPLETELY
+                    editText.isCursorVisible = false
+                    editText.clearFocus()
+                    editText.setSelection(0)   // important: remove active selection highlight
+
+                    true
+                } else false
+            }
+
+            // Backup: also remove cursor on IME action
+            editText.setOnEditorActionListener { v, actionId, event ->
+                if (actionId == EditorInfo.IME_ACTION_DONE ||
+                    actionId == EditorInfo.IME_ACTION_GO ||
+                    actionId == EditorInfo.IME_ACTION_SEND
+                ) {
+
+                    editText.isCursorVisible = false
+                    editText.clearFocus()
+                    editText.setSelection(0)
+
+                    true
+                } else false
+            }
+        }
+
+
+        for (i in 0 until frameContainer.childCount) {
+            val child = frameContainer.getChildAt(i)
+            if (child is EditText) hideKeyboardAndCursor(child)
+        }
     }
 }

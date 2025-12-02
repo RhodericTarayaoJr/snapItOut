@@ -30,6 +30,8 @@ class EditingActivity : AppCompatActivity() {
     private lateinit var frameContainer: View
     private lateinit var currentUserId: String
 
+    private val prefs by lazy { getSharedPreferences("user_prefs", MODE_PRIVATE) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_editing)
@@ -42,7 +44,7 @@ class EditingActivity : AppCompatActivity() {
         btnVintage = findViewById(R.id.VintageBtn)
         btnOld = findViewById(R.id.OldPhotoBtn)
 
-        frameContainer = findViewById(R.id.frameContainer)
+        frameContainer = findViewById(R.id.frameContainer1)
 
         colorCircles = listOf(
             findViewById(R.id.colorCircle1),
@@ -68,10 +70,10 @@ class EditingActivity : AppCompatActivity() {
             findViewById(R.id.mainFrame4)
         )
 
-        // ✅ Load current user
-        val prefs = getSharedPreferences("SnapItOutPrefs", MODE_PRIVATE)
+        // Load current user
         currentUserId = prefs.getString("current_user_id", "default_user") ?: "default_user"
 
+        // Load photos from intent
         val selectedUris = intent.getParcelableArrayListExtra<Uri>("selected_images")
         val photoPaths = intent.getStringArrayListExtra("photoPaths")
 
@@ -88,6 +90,7 @@ class EditingActivity : AppCompatActivity() {
             Toast.makeText(this, "No photos to display", Toast.LENGTH_SHORT).show()
         }
 
+        // Apply Filters
         fun applyFilterToAllFrames(filter: ColorMatrixColorFilter?) {
             mainFrames.forEach { imageView ->
                 imageView.colorFilter = filter
@@ -122,8 +125,9 @@ class EditingActivity : AppCompatActivity() {
             applyFilterToAllFrames(ColorMatrixColorFilter(matrix))
         }
 
+        // Background colors
         val backgroundImages = listOf(
-            R.drawable.frame1, R.drawable.frame2, R.drawable.frame3,
+            R.drawable.frame31, R.drawable.frame2, R.drawable.frame3,
             R.drawable.frame4, R.drawable.frame5, R.drawable.frame6
         )
         colorCircles.forEachIndexed { index, view ->
@@ -133,6 +137,7 @@ class EditingActivity : AppCompatActivity() {
             }
         }
 
+        // Stickers
         val stickerBackgrounds = listOf(
             R.drawable.fsticker1, R.drawable.fsticker2,
             R.drawable.fsticker3, R.drawable.fsticker4, R.drawable.fsticker5
@@ -142,6 +147,12 @@ class EditingActivity : AppCompatActivity() {
                 frameContainer.setBackgroundResource(stickerBackgrounds[index])
                 Toast.makeText(this, "Sticker ${index + 1} applied as background", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        // ✅ Load previously selected frame from FramesActivity
+        val savedFrameRes = prefs.getInt("selected_frame_res", 0)
+        if (savedFrameRes != 0) {
+            frameContainer.setBackgroundResource(savedFrameRes)
         }
 
         saveButton.setOnClickListener {
@@ -154,7 +165,7 @@ class EditingActivity : AppCompatActivity() {
         }
     }
 
-    /** ✅ Save edited collage to user-specific album */
+    /** Save edited collage to user-specific album */
     private fun saveCollageToAlbum() {
         frameContainer.post {
             val width = frameContainer.width
@@ -172,7 +183,6 @@ class EditingActivity : AppCompatActivity() {
             val filename = "SnapIt_Collage_${System.currentTimeMillis()}.jpg"
 
             try {
-                // ✅ User-specific album folder
                 val albumFolder = File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "SnapItOut_$currentUserId")
                 if (!albumFolder.exists()) albumFolder.mkdirs()
 
@@ -184,13 +194,11 @@ class EditingActivity : AppCompatActivity() {
 
                 if (!success) throw Exception("Bitmap compression failed")
 
-                // Optional: notify gallery
                 val uri = Uri.fromFile(file)
                 sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri))
 
                 Toast.makeText(this, "Collage saved to your album!", Toast.LENGTH_SHORT).show()
 
-                // Launch SharingActivity with saved URI
                 val shareIntent = Intent(this, SharingActivity::class.java).apply {
                     putExtra("saved_collage_uri", uri.toString())
                 }

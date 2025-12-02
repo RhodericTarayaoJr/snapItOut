@@ -6,12 +6,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.auth.FirebaseAuth
 
 class UserActivity : AppCompatActivity() {
 
-    // Declare all views
     private lateinit var profileImage: ImageView
     private lateinit var username: TextView
     private lateinit var email: TextView
@@ -22,17 +22,19 @@ class UserActivity : AppCompatActivity() {
     private lateinit var albumIcon: ImageView
     private lateinit var moreText: TextView
     private lateinit var exclusiveFeaturesLayout: LinearLayout
-    private lateinit var logOutBtn: Button  // Added LogOut button
+    private lateinit var logOutBtn: Button
 
-    // SharedPreferences for saving switch state and user data
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var mAuth: FirebaseAuth
+
+    private val currentUser by lazy { FirebaseAuth.getInstance().currentUser }
+    private val uid by lazy { currentUser?.uid ?: "default" }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_userprofile)
 
-        // Initialize views
+        // ---------------- Init Views ----------------
         profileImage = findViewById(R.id.profileImage)
         username = findViewById(R.id.username)
         email = findViewById(R.id.email)
@@ -43,59 +45,82 @@ class UserActivity : AppCompatActivity() {
         albumIcon = findViewById(R.id.imageView10)
         moreText = findViewById(R.id.moretxt)
         exclusiveFeaturesLayout = findViewById(R.id.exclusiveFeaturesLayout)
-        logOutBtn = findViewById(R.id.logOutBtn) // Initialize LogOut button
+        logOutBtn = findViewById(R.id.logOutBtn)
 
-        // Initialize SharedPreferences and FirebaseAuth
-        sharedPreferences = getSharedPreferences("SnapItOutPrefs", MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
         mAuth = FirebaseAuth.getInstance()
 
-        // Load saved user data
-        val usernameText = sharedPreferences.getString("username", "User")
-        val emailText = sharedPreferences.getString("email", "noemail@snapitout.com")
-
-        // Set username and email
-        username.text = usernameText
-        email.text = emailText
-
-        // Load and apply Event Mode state
         val isEventModeOn = sharedPreferences.getBoolean("eventMode", false)
         applyEventModeState(isEventModeOn)
 
-        // Toggle Event Mode logic
         switchEventMode.setOnCheckedChangeListener { _, isChecked ->
             applyEventModeState(isChecked)
             sharedPreferences.edit().putBoolean("eventMode", isChecked).apply()
         }
 
-        // Exclusive Features Click
         exclusiveFeaturesLayout.setOnClickListener {
             if (switchEventMode.isChecked) {
-                Toast.makeText(this, "Accessing Exclusive Features...", Toast.LENGTH_SHORT).show()
                 startActivity(Intent(this, ExclusiveActivity::class.java))
             } else {
-                Toast.makeText(this, "Please turn on Event Mode to access Exclusive Features.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please turn on Event Mode.", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // "My Profile" button (to be implemented)
         btnMyProfile.setOnClickListener {
-            // TODO: Handle "My Profile" click
+            startActivity(Intent(this, ProfileActivity::class.java))
         }
 
-        // Home icon click logic
         homeIcon.setOnClickListener {
             startActivity(Intent(this, HomePageActivity::class.java))
-            finish()
         }
 
-        // Album icon click logic
         albumIcon.setOnClickListener {
-            // TODO: Navigate to album/gallery
+            startActivity(Intent(this, AlbumActivity::class.java))
         }
 
-        // LogOut button click logic
-        logOutBtn.setOnClickListener {
-            logOutUser()
+        logOutBtn.setOnClickListener { logOutUser() }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Reload username and profile image when returning from ProfileActivity
+        loadUserData()
+        loadUserProfileImage()
+    }
+
+    private fun loadUserData() {
+        // Try to get per-account saved username first
+        val savedUsername = sharedPreferences.getString("username_$uid", null)
+        // If none, fallback to Firebase displayName (Google/Facebook)
+        val usernameText = savedUsername ?: currentUser?.displayName ?: "User"
+        val emailText = currentUser?.email ?: "noemail@snapitout.com"
+
+        username.text = usernameText
+        email.text = emailText
+    }
+
+    private fun loadUserProfileImage() {
+        // Get per-account saved profile image
+        val localProfilePath = sharedPreferences.getString("profile_image_path_$uid", null)
+
+        when {
+            localProfilePath != null -> {
+                Glide.with(this)
+                    .load(localProfilePath)
+                    .circleCrop()
+                    .into(profileImage)
+            }
+            else -> {
+                val userPhotoUrl = currentUser?.photoUrl
+                if (userPhotoUrl != null) {
+                    Glide.with(this)
+                        .load(userPhotoUrl)
+                        .circleCrop()
+                        .into(profileImage)
+                } else {
+                    profileImage.setImageResource(R.drawable.userlogow)
+                }
+            }
         }
     }
 
@@ -106,19 +131,12 @@ class UserActivity : AppCompatActivity() {
     }
 
     private fun logOutUser() {
-        // Log out from Firebase
         mAuth.signOut()
-
-        // Turn off Event Mode and update SharedPreferences
-        sharedPreferences.edit()
-            .putBoolean("eventMode", false)
-            .apply()
-
-        // Navigate to LoginActivity
-        val intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
-        finish() // Close the UserActivity
+        sharedPreferences.edit().putBoolean("eventMode", false).apply()
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
     }
+
     private fun hideSystemUI() {
         window.decorView.systemUiVisibility = (
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -132,8 +150,6 @@ class UserActivity : AppCompatActivity() {
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
-            hideSystemUI()
-        }
+        if (hasFocus) hideSystemUI()
     }
 }

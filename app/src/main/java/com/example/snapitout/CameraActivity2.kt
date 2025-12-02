@@ -3,17 +3,17 @@ package com.example.snapitout
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
+import android.graphics.*
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.view.GestureDetector
 import android.view.MotionEvent
-import android.view.Surface
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -33,17 +33,22 @@ class CameraActivity2 : AppCompatActivity() {
     private lateinit var cameraPreview: PreviewView
     private lateinit var shutterButton: ImageView
     private lateinit var countdownText: TextView
+    private lateinit var backgroundOverlay: ImageView
+    private lateinit var addBackgroundButton: Button
+    private lateinit var segmentedCameraView: ImageView
 
     private val cameraPermissions = arrayOf(Manifest.permission.CAMERA)
     private var imageCapture: ImageCapture? = null
     private var lensFacing = CameraSelector.LENS_FACING_BACK
-
     private val capturedPhotoFiles = mutableListOf<File>()
     private lateinit var snapItOutFolder: File
-
     private var templateSlots = arrayListOf<String>()
 
     private lateinit var gestureDetector: GestureDetector
+    private lateinit var imageAnalyzer: ImageAnalysis
+    private val countdownHandler = Handler(Looper.getMainLooper())
+
+    private var photosToTake = 4
 
     private val permissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -52,13 +57,29 @@ class CameraActivity2 : AppCompatActivity() {
         else Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show()
     }
 
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            backgroundOverlay.setImageURI(uri)
+            backgroundOverlay.visibility = View.VISIBLE
+            Toast.makeText(this, "Background applied!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_camera)
+        setContentView(R.layout.activity_camera2)
 
         cameraPreview = findViewById(R.id.cameraPreview)
         shutterButton = findViewById(R.id.shutterButton)
         countdownText = findViewById(R.id.countdownText)
+        backgroundOverlay = findViewById(R.id.backgroundOverlay)
+        addBackgroundButton = findViewById(R.id.addBackgroundButton)
+        segmentedCameraView = findViewById(R.id.segmentedCameraView)
+
+        segmentedCameraView.visibility = View.VISIBLE
+        segmentedCameraView.bringToFront()
 
         templateSlots = intent.getStringArrayListExtra("TEMPLATE_SLOTS") ?: arrayListOf()
 
@@ -66,7 +87,23 @@ class CameraActivity2 : AppCompatActivity() {
         snapItOutFolder = File(picturesDir, "SnapItOut")
         if (!snapItOutFolder.exists()) snapItOutFolder.mkdirs()
 
-        // GestureDetector for double-tap to switch camera
+        findViewById<View>(R.id.homeButton).setOnClickListener {
+            startActivity(Intent(this, ExclusiveActivity::class.java))
+            finish()
+        }
+        findViewById<View>(R.id.imageView13).setOnClickListener {
+            startActivity(Intent(this, AlbumActivity::class.java))
+            finish()
+        }
+
+        addBackgroundButton.setOnClickListener { pickImageLauncher.launch("image/*") }
+        addBackgroundButton.setOnLongClickListener {
+            backgroundOverlay.setImageDrawable(null)
+            backgroundOverlay.visibility = View.GONE
+            Toast.makeText(this, "Background removed", Toast.LENGTH_SHORT).show()
+            true
+        }
+
         gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
             override fun onDoubleTap(e: MotionEvent): Boolean {
                 lensFacing = if (lensFacing == CameraSelector.LENS_FACING_BACK)
@@ -84,7 +121,11 @@ class CameraActivity2 : AppCompatActivity() {
             true
         }
 
-        shutterButton.setOnClickListener { startCountdown() }
+        shutterButton.setOnClickListener {
+            if (capturedPhotoFiles.isEmpty()) {
+                startPhotoSequence()
+            }
+        }
 
         if (isCameraPermissionGranted()) startCamera()
         else permissionRequest.launch(cameraPermissions)
@@ -108,20 +149,24 @@ class CameraActivity2 : AppCompatActivity() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
+
             val preview = Preview.Builder().build().also {
                 it.setSurfaceProvider(cameraPreview.surfaceProvider)
             }
 
-            val rotation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                cameraPreview.display?.rotation ?: Surface.ROTATION_0
-            } else {
-                @Suppress("DEPRECATION")
-                windowManager.defaultDisplay?.rotation ?: Surface.ROTATION_0
-            }
-
             imageCapture = ImageCapture.Builder()
-                .setTargetRotation(rotation)
+                .setTargetRotation(cameraPreview.display.rotation)
                 .build()
+
+            imageAnalyzer = ImageAnalysis.Builder()
+                .setTargetRotation(cameraPreview.display.rotation)
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build()
+                .also { analyzer ->
+                    analyzer.setAnalyzer(ContextCompat.getMainExecutor(this)) { imageProxy ->
+                        processFrame(imageProxy)
+                    }
+                }
 
             val cameraSelector = CameraSelector.Builder()
                 .requireLensFacing(lensFacing)
@@ -133,7 +178,8 @@ class CameraActivity2 : AppCompatActivity() {
                     this as LifecycleOwner,
                     cameraSelector,
                     preview,
-                    imageCapture
+                    imageCapture,
+                    imageAnalyzer
                 )
             } catch (e: Exception) {
                 Toast.makeText(this, "Camera error: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -141,29 +187,51 @@ class CameraActivity2 : AppCompatActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
-    private fun startCountdown() {
+    // ---------------- AUTOMATIC PHOTO SEQUENCE ----------------
+    private fun startPhotoSequence() {
+        capturedPhotoFiles.clear()
+        takeNextPhoto()
+    }
+
+    private fun takeNextPhoto() {
+        if (capturedPhotoFiles.size >= photosToTake) {
+            goToEventEditActivity()
+            return
+        }
+        startCountdown {
+            capturePhoto { takeNextPhoto() }
+        }
+    }
+
+    // ---------------- COUNTDOWN ----------------
+    private fun startCountdown(onComplete: () -> Unit) {
+        countdownText.bringToFront()
         countdownText.visibility = View.VISIBLE
+
         var countdown = 3
-        countdownText.text = "$countdown"
+        countdownHandler.removeCallbacksAndMessages(null)
 
         val countdownRunnable = object : Runnable {
             override fun run() {
-                countdown--
-                countdownText.text = "$countdown"
+                countdownText.text = countdown.toString() // update first
 
-                if (countdown > 0) {
-                    countdownText.postDelayed(this, 1000)
+                if (countdown > 1) {
+                    countdown--
+                    countdownHandler.postDelayed(this, 1000)
                 } else {
-                    countdownText.visibility = View.GONE
-                    capturePhoto()
+                    // show "1" for 1 second before taking photo
+                    countdownHandler.postDelayed({
+                        countdownText.visibility = View.GONE
+                        onComplete()
+                    }, 1000)
                 }
             }
         }
 
-        countdownText.postDelayed(countdownRunnable, 1000)
+        countdownHandler.post(countdownRunnable)
     }
 
-    private fun capturePhoto() {
+    private fun capturePhoto(onSaved: () -> Unit) {
         val imageCapture = imageCapture ?: return
         val photoFile = File(snapItOutFolder, "IMG_${System.currentTimeMillis()}.jpg")
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
@@ -173,29 +241,33 @@ class CameraActivity2 : AppCompatActivity() {
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    val rotatedBitmap = rotateImageIfRequired(
-                        photoFile.absolutePath,
-                        mirror = (lensFacing == CameraSelector.LENS_FACING_FRONT)
-                    )
+                    var bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
+                    bitmap = rotateImageIfRequired(photoFile.absolutePath, mirror = (lensFacing == CameraSelector.LENS_FACING_FRONT))
+                    val finalBitmap = mergeWithBackground(bitmap)
 
                     FileOutputStream(photoFile).use {
-                        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+                        finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
                     }
 
                     capturedPhotoFiles.add(photoFile)
-
-                    if (capturedPhotoFiles.size >= 4) {
-                        goToEventEditActivity()
-                    } else {
-                        startCamera()
-                        startCountdown()
-                    }
+                    onSaved()
                 }
 
                 override fun onError(exception: ImageCaptureException) {
                     Toast.makeText(this@CameraActivity2, "Capture failed: ${exception.message}", Toast.LENGTH_SHORT).show()
                 }
             })
+    }
+
+    private fun mergeWithBackground(foreground: Bitmap): Bitmap {
+        val bgDrawable = backgroundOverlay.drawable as? BitmapDrawable ?: return foreground
+        val background = Bitmap.createScaledBitmap(bgDrawable.bitmap, foreground.width, foreground.height, true)
+
+        val fgSmall = Bitmap.createScaledBitmap(foreground, foreground.width / 4, foreground.height / 4, true)
+        val bgSmall = Bitmap.createScaledBitmap(background, fgSmall.width, fgSmall.height, true)
+
+        val mergedSmall = applyGreenScreenFast(fgSmall, bgSmall)
+        return Bitmap.createScaledBitmap(mergedSmall, foreground.width, foreground.height, true)
     }
 
     private fun goToEventEditActivity() {
@@ -225,5 +297,85 @@ class CameraActivity2 : AppCompatActivity() {
             matrix.postTranslate(bitmap.width.toFloat(), 0f)
         }
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    }
+
+    // ---------------- FAST GREEN SCREEN ----------------
+    private fun processFrame(imageProxy: ImageProxy) {
+        val bitmap = imageProxy.toBitmap() ?: run { imageProxy.close(); return }
+
+        var rotatedBitmap = rotateBitmap(bitmap, imageProxy.imageInfo.rotationDegrees.toFloat())
+
+        if (lensFacing == CameraSelector.LENS_FACING_FRONT) {
+            val matrix = Matrix()
+            matrix.preScale(-1f, 1f)
+            rotatedBitmap = Bitmap.createBitmap(rotatedBitmap, 0, 0, rotatedBitmap.width, rotatedBitmap.height, matrix, true)
+        }
+
+        val bgDrawable = backgroundOverlay.drawable as? BitmapDrawable
+        if (bgDrawable != null) {
+            val smallFrame = Bitmap.createScaledBitmap(rotatedBitmap, rotatedBitmap.width / 4, rotatedBitmap.height / 4, true)
+            val smallBg = Bitmap.createScaledBitmap(bgDrawable.bitmap, smallFrame.width, smallFrame.height, true)
+
+            val resultSmall = applyGreenScreenFast(smallFrame, smallBg)
+            val result = Bitmap.createScaledBitmap(resultSmall, rotatedBitmap.width, rotatedBitmap.height, true)
+            runOnUiThread { segmentedCameraView.setImageBitmap(result) }
+        } else {
+            runOnUiThread { segmentedCameraView.setImageBitmap(rotatedBitmap) }
+        }
+
+        imageProxy.close()
+    }
+
+    private fun applyGreenScreenFast(frame: Bitmap, background: Bitmap): Bitmap {
+        val output = Bitmap.createBitmap(frame.width, frame.height, Bitmap.Config.ARGB_8888)
+        val width = frame.width
+        val height = frame.height
+
+        val framePixels = IntArray(width * height)
+        frame.getPixels(framePixels, 0, width, 0, 0, width, height)
+
+        val bgPixels = IntArray(width * height)
+        background.getPixels(bgPixels, 0, width, 0, 0, width, height)
+
+        for (i in framePixels.indices) {
+            val pixel = framePixels[i]
+            val hsv = FloatArray(3)
+            Color.colorToHSV(pixel, hsv)
+            val hue = hsv[0]
+            val sat = hsv[1]
+            val valBrightness = hsv[2]
+
+            framePixels[i] = if (hue in 80f..160f && sat > 0.3f && valBrightness > 0.2f) bgPixels[i] else pixel
+        }
+
+        output.setPixels(framePixels, 0, width, 0, 0, width, height)
+        return output
+    }
+
+    private fun rotateBitmap(bitmap: Bitmap, rotationDegrees: Float): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(rotationDegrees)
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    }
+
+    private fun ImageProxy.toBitmap(): Bitmap? {
+        val yBuffer = planes[0].buffer
+        val uBuffer = planes[1].buffer
+        val vBuffer = planes[2].buffer
+
+        val ySize = yBuffer.remaining()
+        val uSize = uBuffer.remaining()
+        val vSize = vBuffer.remaining()
+
+        val nv21 = ByteArray(ySize + uSize + vSize)
+        yBuffer.get(nv21, 0, ySize)
+        vBuffer.get(nv21, ySize, vSize)
+        uBuffer.get(nv21, ySize + vSize, uSize)
+
+        val yuvImage = android.graphics.YuvImage(nv21, android.graphics.ImageFormat.NV21, width, height, null)
+        val out = java.io.ByteArrayOutputStream()
+        yuvImage.compressToJpeg(android.graphics.Rect(0, 0, width, height), 100, out)
+        val imageBytes = out.toByteArray()
+        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
     }
 }

@@ -15,7 +15,6 @@
         android:layout_width="158dp"
         android:layout_height="158dp"
         android:layout_marginTop="16dp"
-        android:src="@drawable/userlogow"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
@@ -168,7 +167,7 @@
 
             <ImageView
                 android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_height="match_parent"
                 android:src="@drawable/arrow2" />
         </LinearLayout>
     </LinearLayout>
@@ -217,7 +216,7 @@
             <ImageView
                 android:id="@+id/imageView11"
                 android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_height="match_parent"
                 android:src="@drawable/arrow2" />
         </LinearLayout>
 
@@ -251,7 +250,7 @@
 
             <ImageView
                 android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_height="match_parent"
                 android:src="@drawable/arrow2" />
         </LinearLayout>
     </LinearLayout>

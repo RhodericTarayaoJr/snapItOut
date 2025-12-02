@@ -19,7 +19,6 @@ class ExclusiveActivity : AppCompatActivity() {
         val bottomToolbar: MaterialToolbar = findViewById(R.id.materialToolbar10)
 
         // Toolbar Cards
-        val toolbar11: MaterialToolbar = findViewById(R.id.materialToolbar11)
         val toolbar12: MaterialToolbar = findViewById(R.id.materialToolbar12)
         val toolbar13: MaterialToolbar = findViewById(R.id.materialToolbar13)
 
@@ -30,22 +29,15 @@ class ExclusiveActivity : AppCompatActivity() {
         val albumIcon: ImageView = findViewById(R.id.imageView4)
         val featureIcon: ImageView = findViewById(R.id.imageView18)
 
-        val camImage: ImageView = findViewById(R.id.imageView14)
         val frameLeft: ImageView = findViewById(R.id.imageView15)
         val frameRight: ImageView = findViewById(R.id.imageView16)
         val guestbookImage: ImageView = findViewById(R.id.imageView17)
 
         // Texts
-        val titlePhotobooth: TextView = findViewById(R.id.textView3)
         val titleUploadFrame: TextView = findViewById(R.id.textView5)
         val titleGuestBook: TextView = findViewById(R.id.textView6)
         val titleExclusive: TextView = findViewById(R.id.textView8)
 
-        // Click on Photobooth Card navigates to CameraActivity
-        toolbar11.setOnClickListener {
-            val intent = Intent(this, CameraActivity::class.java)
-            startActivity(intent)
-        }
 
         // Click on Home icon navigates to HomePageActivity
         homeIcon.setOnClickListener {
@@ -57,6 +49,12 @@ class ExclusiveActivity : AppCompatActivity() {
         // Click on User logo navigates to UserActivity
         profileImage.setOnClickListener {
             val intent = Intent(this, UserActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        albumIcon.setOnClickListener {
+            val intent = Intent(this, AlbumActivity::class.java)
             startActivity(intent)
             finish()
         }

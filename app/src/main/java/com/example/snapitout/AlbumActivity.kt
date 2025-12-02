@@ -1,14 +1,20 @@
 package com.example.snapitout
 
 import android.content.Intent
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.widget.GridLayout
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +23,8 @@ import com.bumptech.glide.Glide
 import com.example.snapitout.utils.CollageUtils
 import com.google.android.material.button.MaterialButton
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.ceil
 import kotlin.math.sqrt
 
@@ -61,6 +69,11 @@ class AlbumActivity : AppCompatActivity() {
             finish()
         }
 
+        findViewById<ImageView>(R.id.profileIcon).setOnClickListener {
+            startActivity(Intent(this, UserActivity::class.java))
+            finish()
+        }
+
         // Auto Collage
         findViewById<MaterialButton>(R.id.autoCollageButton).setOnClickListener {
             createAutoCollage()
@@ -91,12 +104,36 @@ class AlbumActivity : AppCompatActivity() {
         }
     }
 
-    /** Load all images for current user */
+    /** Load all images for current user with month headers */
     private fun loadAlbumImages() {
         albumGrid.removeAllViews()
         val imageUris = getAllImages().sortedByDescending { getFileModifiedTime(it) }
 
+        val monthFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+        var lastMonth = ""
+
         imageUris.forEach { uri ->
+            val monthLabel = monthFormat.format(Date(getFileModifiedTime(uri)))
+            if (monthLabel != lastMonth) {
+                // Add month header
+                val header = TextView(this).apply {
+                    text = monthLabel
+                    setTypeface(null, Typeface.BOLD)
+                    setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+                    setTextColor(ContextCompat.getColor(context, android.R.color.black))
+                    gravity = Gravity.CENTER
+                }
+                val headerParams = GridLayout.LayoutParams().apply {
+                    width = GridLayout.LayoutParams.MATCH_PARENT
+                    height = GridLayout.LayoutParams.WRAP_CONTENT
+                    columnSpec = GridLayout.spec(0, 3) // span full width
+                    setMargins(0, 24, 0, 12)
+                }
+                header.layoutParams = headerParams
+                albumGrid.addView(header)
+                lastMonth = monthLabel
+            }
+
             val imageView = ImageView(this)
 
             val sizeInDp = TypedValue.applyDimension(

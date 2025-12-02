@@ -25,10 +25,6 @@ class HomePageActivity : AppCompatActivity() {
         val framesText: TextView = findViewById(R.id.textView11)
         val framesImage: ImageView = findViewById(R.id.imageView6)
 
-        // 🌟 Stickers Section
-        val stickersText: TextView = findViewById(R.id.textView12)
-        val stickersImage: ImageView = findViewById(R.id.imageView7)
-
         // ℹ️ Photo Collab Section
         val photoCollabText: TextView = findViewById(R.id.textView)
         val photoCollabImage: ImageView = findViewById(R.id.imageView3)
@@ -56,14 +52,6 @@ class HomePageActivity : AppCompatActivity() {
         }
         framesImage.setOnClickListener {
             startActivity(Intent(this, FramesActivity::class.java))
-        }
-
-        // 👉 Navigate to StickersActivity
-        stickersText.setOnClickListener {
-            startActivity(Intent(this, StickersActivity::class.java))
-        }
-        stickersImage.setOnClickListener {
-            startActivity(Intent(this, StickersActivity::class.java))
         }
 
         // ❌ PhotoCollab still no action

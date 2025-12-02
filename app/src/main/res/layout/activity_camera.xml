@@ -41,24 +41,24 @@
     <ImageView
         android:id="@+id/homeButton"
         android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/materialToolbar7"
         app:layout_constraintVertical_bias="0.99"
         app:srcCompat="@drawable/home" />
 
     <ImageView
         android:id="@+id/imageView13"
         android:layout_width="45dp"
-        android:layout_height="45dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.9"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/materialToolbar7"
         app:layout_constraintVertical_bias="0.997"
         app:srcCompat="@drawable/album" />
 
@@ -67,11 +67,13 @@
     <ImageView
         android:id="@+id/logoImage"
         android:layout_width="69dp"
-        android:layout_height="57dp"
+        android:layout_height="0dp"
         android:src="@drawable/logologo"
+        app:layout_constraintBottom_toBottomOf="@+id/materialToolbar16"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
     <LinearLayout
         android:id="@+id/filterInfo"
@@ -104,8 +106,9 @@
 
             <TextView
                 android:layout_width="112dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:fontFamily="@font/lora"
+                android:gravity="center"
                 android:padding="0dp"
                 android:text="4 Photos"
                 android:textColor="@color/black"
@@ -126,14 +129,15 @@
 
             <ImageView
                 android:layout_width="41dp"
-                android:layout_height="41dp"
+                android:layout_height="match_parent"
                 android:layout_marginEnd="8dp"
                 android:src="@drawable/clock" />
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:fontFamily="@font/lora"
+                android:gravity="center"
                 android:padding="1dp"
                 android:text="3 Seconds"
                 android:textColor="@color/black"
@@ -194,12 +198,11 @@
     <TextView
         android:id="@+id/textView15"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginStart="114dp"
-        android:layout_marginTop="24dp"
         android:layout_marginEnd="114dp"
-        android:layout_marginBottom="21dp"
         android:fontFamily="@font/baloo_tamma"
+        android:gravity="center"
         android:text="Snap It Out"
         android:textColor="#CF9984"
         android:textSize="36sp"

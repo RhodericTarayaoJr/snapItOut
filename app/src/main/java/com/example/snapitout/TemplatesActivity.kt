@@ -63,9 +63,12 @@ class TemplatesActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("SnapItOutPrefs", MODE_PRIVATE)
         currentUserId = prefs.getString("current_user_id", "default_user") ?: "default_user"
 
-        findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
+        findViewById<View>(R.id.btnBack).setOnClickListener {
+            startActivity(Intent(this, ExclusiveActivity::class.java))
+            finish()
+        }
         findViewById<View>(R.id.navHome)?.setOnClickListener {
-            startActivity(Intent(this, HomePageActivity::class.java))
+            startActivity(Intent(this, ExclusiveActivity::class.java))
             finish()
         }
         findViewById<View>(R.id.navArchive)?.setOnClickListener {

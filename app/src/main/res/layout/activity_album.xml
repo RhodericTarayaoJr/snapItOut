@@ -22,22 +22,23 @@
     <TextView
         android:id="@+id/AlbumTxt"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:fontFamily="@font/lora"
+        android:gravity="center"
         android:text="Album"
         android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="@id/materialToolbar"
         app:layout_constraintBottom_toBottomOf="@id/materialToolbar"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="@id/materialToolbar" />
 
     <!-- Profile Icon -->
     <ImageView
         android:id="@+id/profileIcon"
         android:layout_width="45dp"
-        android:layout_height="50dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="@id/materialToolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.9"
@@ -46,16 +47,20 @@
         app:srcCompat="@drawable/user_profile" />
 
     <!-- Logo -->
+
+    <!-- Scrollable Grid -->
     <ImageView
         android:id="@+id/imageView2"
         android:layout_width="69dp"
-        android:layout_height="57dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="@id/materialToolbar"
+        app:layout_constraintEnd_toStartOf="@+id/AlbumTxt"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/materialToolbar"
+        app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/logologo" />
 
-    <!-- Scrollable Grid -->
     <ScrollView
         android:id="@+id/albumScroll"
         android:layout_width="0dp"
@@ -137,7 +142,7 @@
         <ImageView
             android:id="@+id/imageView5"
             android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_height="match_parent"
             android:layout_gravity="center_vertical|start"
             android:clickable="true"
             android:contentDescription="Home Button"
@@ -150,7 +155,7 @@
         <ImageView
             android:id="@+id/printButton2"
             android:layout_width="70dp"
-            android:layout_height="65dp"
+            android:layout_height="match_parent"
             android:layout_gravity="end"
             android:clickable="true"
             android:contentDescription="Print Button"

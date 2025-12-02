@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application dark theme. -->
     <style name="Base.Theme.SnapItOut" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <!-- Window background para sa splash screen -->
+        <item name="android:windowBackground">@drawable/splash_background</item>
     </style>
 </resources>

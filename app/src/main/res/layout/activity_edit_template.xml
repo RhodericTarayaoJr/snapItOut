@@ -21,8 +21,9 @@
 
         <ImageButton
             android:id="@+id/btnBack2"
-            android:layout_width="match_parent"
-            android:layout_height="36dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
             android:layout_marginStart="16dp"
             android:layout_weight="1"
             android:background="?attr/selectableItemBackgroundBorderless"
@@ -34,18 +35,18 @@
 
         <ImageView
             android:id="@+id/iconHeader"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:layout_marginStart="15dp"
-            android:layout_marginRight="20dp"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="5dp"
             android:contentDescription="Edit Icon"
             android:src="@drawable/frames" />
 
         <TextView
             android:id="@+id/titleHeader"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="225dp"
+            android:layout_height="match_parent"
             android:fontFamily="@font/lora"
+            android:gravity="center|start"
             android:text="Edit Template"
             android:textColor="#000000"
             android:textSize="24sp"
@@ -57,15 +58,17 @@
     <LinearLayout
         android:id="@+id/toolButtons"
         android:layout_width="0dp"
-        android:layout_height="35dp"
-        android:orientation="horizontal"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:gravity="center"
+        android:orientation="horizontal"
         android:paddingStart="0dp"
         android:weightSum="4"
-        android:layout_marginTop="5dp"
-        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintBottom_toTopOf="@+id/frameContainer1"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/header">
 
 
         <ImageButton
@@ -118,7 +121,7 @@
 
     <!-- Save Button -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/frameContainer"
+        android:id="@+id/frameContainer1"
         android:layout_width="175dp"
         android:layout_height="508dp"
         android:layout_marginTop="2dp"
@@ -192,20 +195,22 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
+    <!-- Bottom Navigation -->
     <Button
         android:id="@+id/SaveButton"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="27dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="16dp"
         android:backgroundTint="#E9D0BC"
         android:text="Save"
         android:textColor="@color/black"
         app:layout_constraintBottom_toTopOf="@id/bottomNav"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frameContainer1" />
 
-
-    <!-- Bottom Navigation -->
     <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="0dp"
@@ -223,7 +228,7 @@
         <ImageButton
             android:id="@+id/navHome"
             android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_height="match_parent"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Home"
             android:scaleType="fitCenter"
@@ -239,7 +244,7 @@
         <ImageButton
             android:id="@+id/navAlbum"
             android:layout_width="45dp"
-            android:layout_height="45dp"
+            android:layout_height="match_parent"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Album"
             android:scaleType="fitCenter"
