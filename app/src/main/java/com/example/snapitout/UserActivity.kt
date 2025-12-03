@@ -20,6 +20,10 @@ class UserActivity : AppCompatActivity() {
     private lateinit var toolbar: MaterialToolbar
     private lateinit var homeIcon: ImageView
     private lateinit var albumIcon: ImageView
+
+    private lateinit var about: TextView
+
+    private lateinit var helps: TextView
     private lateinit var moreText: TextView
     private lateinit var exclusiveFeaturesLayout: LinearLayout
     private lateinit var logOutBtn: Button
@@ -46,6 +50,8 @@ class UserActivity : AppCompatActivity() {
         moreText = findViewById(R.id.moretxt)
         exclusiveFeaturesLayout = findViewById(R.id.exclusiveFeaturesLayout)
         logOutBtn = findViewById(R.id.logOutBtn)
+        about = findViewById(R.id.about)
+        helps = findViewById(R.id.helps)
 
         sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
         mAuth = FirebaseAuth.getInstance()
@@ -76,6 +82,14 @@ class UserActivity : AppCompatActivity() {
 
         albumIcon.setOnClickListener {
             startActivity(Intent(this, AlbumActivity::class.java))
+        }
+
+        about.setOnClickListener {
+            startActivity(Intent(this, AboutUsActivity::class.java))
+        }
+
+        helps.setOnClickListener {
+            startActivity(Intent(this, HelpActivity::class.java))
         }
 
         logOutBtn.setOnClickListener { logOutUser() }

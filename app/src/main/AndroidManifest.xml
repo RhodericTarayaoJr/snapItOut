@@ -72,6 +72,8 @@
         <activity android:name=".PdfPreviewActivity" android:exported="true" />
         <activity android:name=".PrintPreviewActivity" android:exported="true" />
         <activity android:name=".ProfileActivity" android:exported="true" />
+        <activity android:name=".AboutUsActivity" android:exported="true" />
+        <activity android:name=".HelpActivity" android:exported="true" />
 
         <meta-data
             android:name="preloaded_fonts"

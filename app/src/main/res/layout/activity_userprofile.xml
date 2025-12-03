@@ -202,7 +202,7 @@
                 android:src="@drawable/help" />
 
             <TextView
-                android:id="@+id/textView4"
+                android:id="@+id/helps"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -238,6 +238,7 @@
                 android:src="@drawable/aboutus" />
 
             <TextView
+                android:id="@+id/about"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"

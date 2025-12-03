@@ -30,7 +30,7 @@ class EditingActivity : AppCompatActivity() {
     private lateinit var frameContainer: View
     private lateinit var currentUserId: String
 
-    private val prefs by lazy { getSharedPreferences("user_prefs", MODE_PRIVATE) }
+    private val prefs by lazy { getSharedPreferences("SnapItOutPrefs", MODE_PRIVATE) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,8 +127,8 @@ class EditingActivity : AppCompatActivity() {
 
         // Background colors
         val backgroundImages = listOf(
-            R.drawable.frame1, R.drawable.frame2, R.drawable.frame3,
-            R.drawable.frame4, R.drawable.frame5, R.drawable.frame6
+            R.drawable.frame25, R.drawable.frame01, R.drawable.frame02,
+            R.drawable.frame03, R.drawable.frame04, R.drawable.frame05
         )
         colorCircles.forEachIndexed { index, view ->
             view.setOnClickListener {
