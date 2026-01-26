@@ -90,6 +90,16 @@ class EditingActivity : AppCompatActivity() {
             Toast.makeText(this, "No photos to display", Toast.LENGTH_SHORT).show()
         }
 
+        // ✅ Load frame selected from FramesActivity
+        val selectedFrameRes = intent.getIntExtra("selectedFrame", 0)
+        if (selectedFrameRes != 0) {
+            frameContainer.setBackgroundResource(selectedFrameRes)
+        } else {
+            // fallback sa last saved frame
+            val savedFrameRes = prefs.getInt("selected_frame_res", 0)
+            if (savedFrameRes != 0) frameContainer.setBackgroundResource(savedFrameRes)
+        }
+
         // Apply Filters
         fun applyFilterToAllFrames(filter: ColorMatrixColorFilter?) {
             mainFrames.forEach { imageView ->
@@ -145,14 +155,8 @@ class EditingActivity : AppCompatActivity() {
         stickers.forEachIndexed { index, sticker ->
             sticker.setOnClickListener {
                 frameContainer.setBackgroundResource(stickerBackgrounds[index])
-                Toast.makeText(this, "Sticker ${index + 1} applied as background", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Sticker ${index + 1} applied", Toast.LENGTH_SHORT).show()
             }
-        }
-
-        // ✅ Load previously selected frame from FramesActivity
-        val savedFrameRes = prefs.getInt("selected_frame_res", 0)
-        if (savedFrameRes != 0) {
-            frameContainer.setBackgroundResource(savedFrameRes)
         }
 
         saveButton.setOnClickListener {

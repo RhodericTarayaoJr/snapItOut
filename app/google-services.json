@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "12291873383-l9f0b7m0dsm6o9iq2q4grs6hucjc1bfo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.snapitout",
+            "certificate_hash": "b36b8b1d252c29d621f0eeb2db8877b788277277"
+          }
+        },
+        {
           "client_id": "12291873383-r04govuka2422u3oa8fftkve5a013q88.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

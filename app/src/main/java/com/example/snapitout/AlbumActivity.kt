@@ -88,6 +88,11 @@ class AlbumActivity : AppCompatActivity() {
         findViewById<ImageView>(R.id.printButton2)?.setOnClickListener {
             handlePrintRequest()
         }
+
+        // DELETE BUTTON → Delete selected images
+        findViewById<MaterialButton>(R.id.deleteButton)?.setOnClickListener {
+            deleteSelectedImages()
+        }
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -328,5 +333,40 @@ class AlbumActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         }
+    }
+
+    // -------------------------------
+    // 🔥 DELETE SELECTED IMAGES
+    // -------------------------------
+    private fun deleteSelectedImages() {
+        if (selectedImages.isEmpty()) {
+            Toast.makeText(this, "No images selected to delete", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Delete Selected Images")
+            .setMessage("Are you sure you want to delete ${selectedImages.size} selected image(s)? This cannot be undone.")
+            .setPositiveButton("Delete") { _, _ ->
+                val deletedFiles = mutableListOf<String>()
+                selectedImages.forEach { uri ->
+                    val file = File(uri.path ?: "")
+                    if (file.exists() && file.delete()) {
+                        deletedFiles.add(file.name)
+                    }
+                }
+
+                if (deletedFiles.isNotEmpty()) {
+                    Toast.makeText(this, "Deleted ${deletedFiles.size} image(s)", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Failed to delete selected images", Toast.LENGTH_SHORT).show()
+                }
+
+                // Clear selection and reload album
+                selectedImages.clear()
+                loadAlbumImages()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 }

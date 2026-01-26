@@ -31,13 +31,15 @@ class CameraActivity : AppCompatActivity() {
     private lateinit var countdownText: TextView
     private lateinit var homeButton: ImageView
     private lateinit var albumButton: ImageView
-
     private val cameraPermissions = arrayOf(Manifest.permission.CAMERA)
     private var imageCapture: ImageCapture? = null
     private var lensFacing = CameraSelector.LENS_FACING_BACK
 
     private val capturedPhotoFiles = mutableListOf<File>()
     private lateinit var snapItOutFolder: File
+
+    // Variable para sa napiling frame
+    private var selectedFrameId: Int = R.drawable.frame01
 
     private val permissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -55,6 +57,10 @@ class CameraActivity : AppCompatActivity() {
         countdownText = findViewById(R.id.countdownText)
         homeButton = findViewById(R.id.homeButton)
         albumButton = findViewById(R.id.imageView13)
+
+        // Kunin ang napiling frame mula sa FramesActivity
+        selectedFrameId = intent.getIntExtra("selectedFrame", R.drawable.frame01)
+
 
         val picturesDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         snapItOutFolder = File(picturesDir, "SnapItOut")
@@ -108,7 +114,6 @@ class CameraActivity : AppCompatActivity() {
             val cameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder().build().also { it.setSurfaceProvider(cameraPreview.surfaceProvider) }
 
-            // SAFELY get rotation
             val rotation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 cameraPreview.display?.rotation ?: Surface.ROTATION_0
             } else {
@@ -195,6 +200,10 @@ class CameraActivity : AppCompatActivity() {
             ArrayList(capturedPhotoFiles.map { it.absolutePath })
         )
         intent.putExtra("isFrontCamera", lensFacing == CameraSelector.LENS_FACING_FRONT)
+
+        // IPASA ANG NAPILING FRAME
+        intent.putExtra("selectedFrame", selectedFrameId)
+
         startActivity(intent)
         finish()
     }
