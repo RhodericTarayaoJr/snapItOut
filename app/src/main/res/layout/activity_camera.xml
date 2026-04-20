@@ -169,9 +169,7 @@
             android:id="@+id/countdownText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|end"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="5dp"
+            android:layout_gravity="center"
             android:background="@android:color/transparent"
             android:shadowColor="#000"
             android:shadowDx="0"
@@ -179,9 +177,12 @@
             android:shadowRadius="4"
             android:text="3"
             android:textColor="@android:color/white"
-            android:textSize="35sp"
+            android:textSize="80sp"
             android:textStyle="bold"
             android:visibility="gone" />
+
+
+
     </FrameLayout>
 
     <ImageView

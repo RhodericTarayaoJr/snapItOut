@@ -1,6 +1,7 @@
 package com.example.snapitout
 
 import android.Manifest
+import android.animation.AnimatorSet
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -23,6 +24,7 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.LifecycleOwner
 import java.io.File
 import java.io.FileOutputStream
+import android.animation.ObjectAnimator
 
 class CameraActivity : AppCompatActivity() {
 
@@ -141,24 +143,41 @@ class CameraActivity : AppCompatActivity() {
 
     private fun startCountdown() {
         countdownText.visibility = View.VISIBLE
-        var countdown = 3
-        countdownText.text = "$countdown"
 
-        val countdownRunnable = object : Runnable {
-            override fun run() {
-                countdown--
+        var countdown = 3
+
+        fun showNextNumber() {
+            if (countdown > 0) {
                 countdownText.text = "$countdown"
-                if (countdown > 0) {
-                    countdownText.postDelayed(this, 1000)
-                } else {
-                    countdownText.visibility = View.GONE
-                    capturePhoto()
-                }
+
+                // Reset scale and alpha for the pop effect
+                countdownText.scaleX = 0f
+                countdownText.scaleY = 0f
+                countdownText.alpha = 1f
+
+                // Pop scale animation (big bounce)
+                val popScaleX = ObjectAnimator.ofFloat(countdownText, "scaleX", 0f, 2f, 1f)
+                val popScaleY = ObjectAnimator.ofFloat(countdownText, "scaleY", 0f, 2f, 1f)
+                val fadeOut = ObjectAnimator.ofFloat(countdownText, "alpha", 1f, 0f)
+
+                // Animator set: pop + fade
+                val animatorSet = AnimatorSet()
+                animatorSet.playTogether(popScaleX, popScaleY, fadeOut)
+                animatorSet.duration = 1000
+                animatorSet.start()
+
+                countdown--
+                countdownText.postDelayed({ showNextNumber() }, 1000)
+            } else {
+                countdownText.visibility = View.GONE
+                capturePhoto()
             }
         }
 
-        countdownText.postDelayed(countdownRunnable, 1000)
+        showNextNumber()
     }
+
+
 
     private fun capturePhoto() {
         val imageCapture = imageCapture ?: return

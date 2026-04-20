@@ -17,7 +17,6 @@ class GuestBookActivity : AppCompatActivity() {
     private lateinit var homeIcon: ImageView
     private lateinit var albumIcon: ImageView
     private lateinit var backArrow: ImageView
-
     private lateinit var guestbookGrid: GridLayout
     private lateinit var sp: SharedPreferences
     private lateinit var currentUserId: String
@@ -26,12 +25,12 @@ class GuestBookActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_guestbook)
 
-        // Bottom nav buttons
+        // Initialize Bottom Navigation buttons
         homeIcon = findViewById(R.id.imageView5)
         albumIcon = findViewById(R.id.imageView21)
         backArrow = findViewById(R.id.imageView29)
 
-        // Guestbook GridLayout inside ScrollView
+        // Initialize Guestbook GridLayout
         guestbookGrid = findViewById(R.id.guestbookContainer)
         guestbookGrid.columnCount = 2
 
@@ -39,11 +38,13 @@ class GuestBookActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("SnapItOutPrefs", MODE_PRIVATE)
         currentUserId = prefs.getString("current_user_id", "default_user") ?: "default_user"
 
-        // Use user-specific SharedPreferences for guestbook
+        // Initialize user-specific SharedPreferences for guestbook
         sp = getSharedPreferences("GUESTBOOK_DATA_$currentUserId", MODE_PRIVATE)
 
+        // Load guestbook images
         loadGuestbookImages()
 
+        // Set button click listeners
         homeIcon.setOnClickListener {
             startActivity(Intent(this, HomePageActivity::class.java))
         }
@@ -62,18 +63,23 @@ class GuestBookActivity : AppCompatActivity() {
         loadGuestbookImages()
     }
 
+    /**
+     * Load all guestbook images into the GridLayout
+     */
     private fun loadGuestbookImages() {
         guestbookGrid.removeAllViews()
 
         val paths = sp.getStringSet("IMAGES", emptySet())?.toList() ?: emptyList()
+
         if (paths.isEmpty()) {
             Toast.makeText(this, "No guestbook entries yet!", Toast.LENGTH_SHORT).show()
             return
         }
 
         val sortedPaths = paths.sortedDescending()
-
-        val marginInPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
+        val marginInPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics
+        ).toInt()
 
         for (path in sortedPaths) {
             val file = File(path)
@@ -85,8 +91,6 @@ class GuestBookActivity : AppCompatActivity() {
                 setImageBitmap(bmp)
                 adjustViewBounds = true
                 scaleType = ImageView.ScaleType.FIT_CENTER
-
-                // **Use weight for equal column width**
                 layoutParams = GridLayout.LayoutParams().apply {
                     width = 0
                     height = GridLayout.LayoutParams.WRAP_CONTENT
@@ -99,13 +103,14 @@ class GuestBookActivity : AppCompatActivity() {
         }
     }
 
-
-    /** Save an image to the current user's guestbook */
+    /**
+     * Save an image to the current user's guestbook
+     */
     fun saveImageToGuestBook(imageFile: File) {
         if (!imageFile.exists()) return
 
         try {
-            // Get current set and make mutable copy
+            // Get current set and make a mutable copy
             val savedPaths = sp.getStringSet("IMAGES", emptySet())?.toMutableSet() ?: mutableSetOf()
 
             // Add new image
@@ -116,22 +121,26 @@ class GuestBookActivity : AppCompatActivity() {
 
             // Reload UI
             loadGuestbookImages()
-
             Toast.makeText(this, "Image added to guestbook!", Toast.LENGTH_SHORT).show()
+
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(this, "Failed to save image: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
+    /**
+     * Hide system UI for immersive fullscreen mode
+     */
     private fun hideSystemUI() {
-        window.decorView.systemUiVisibility =
-            (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
+        window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        or View.SYSTEM_UI_FLAG_FULLSCREEN
+                        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                )
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

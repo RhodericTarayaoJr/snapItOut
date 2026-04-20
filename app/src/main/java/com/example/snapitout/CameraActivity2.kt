@@ -1,6 +1,8 @@
 package com.example.snapitout
 
 import android.Manifest
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.*
@@ -34,7 +36,9 @@ class CameraActivity2 : AppCompatActivity() {
     private lateinit var shutterButton: ImageView
     private lateinit var countdownText: TextView
     private lateinit var backgroundOverlay: ImageView
+    private lateinit var frameOverlay: ImageView // ✅ NEW
     private lateinit var addBackgroundButton: Button
+    private lateinit var addFrameButton: Button // ✅ NEW
     private lateinit var segmentedCameraView: ImageView
 
     private val cameraPermissions = arrayOf(Manifest.permission.CAMERA)
@@ -49,6 +53,18 @@ class CameraActivity2 : AppCompatActivity() {
     private val countdownHandler = Handler(Looper.getMainLooper())
 
     private var photosToTake = 4
+
+    // ✅ FRAME PICKER
+    private val pickFrameLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            frameOverlay.setImageURI(uri)
+            frameOverlay.visibility = View.VISIBLE
+            frameOverlay.bringToFront()
+            Toast.makeText(this, "Frame applied!", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     private val permissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -75,7 +91,9 @@ class CameraActivity2 : AppCompatActivity() {
         shutterButton = findViewById(R.id.shutterButton)
         countdownText = findViewById(R.id.countdownText)
         backgroundOverlay = findViewById(R.id.backgroundOverlay)
+        frameOverlay = findViewById(R.id.frameOverlay) // ✅ NEW
         addBackgroundButton = findViewById(R.id.addBackgroundButton)
+        addFrameButton = findViewById(R.id.addFrameButton) // ✅ NEW
         segmentedCameraView = findViewById(R.id.segmentedCameraView)
 
         segmentedCameraView.visibility = View.VISIBLE
@@ -96,11 +114,24 @@ class CameraActivity2 : AppCompatActivity() {
             finish()
         }
 
+        // ✅ BACKGROUND (UNCHANGED)
         addBackgroundButton.setOnClickListener { pickImageLauncher.launch("image/*") }
         addBackgroundButton.setOnLongClickListener {
             backgroundOverlay.setImageDrawable(null)
             backgroundOverlay.visibility = View.GONE
             Toast.makeText(this, "Background removed", Toast.LENGTH_SHORT).show()
+            true
+        }
+
+        // ✅ FRAME BUTTON (NEW)
+        addFrameButton.setOnClickListener {
+            pickFrameLauncher.launch("image/*")
+        }
+
+        addFrameButton.setOnLongClickListener {
+            frameOverlay.setImageDrawable(null)
+            frameOverlay.visibility = View.GONE
+            Toast.makeText(this, "Frame removed", Toast.LENGTH_SHORT).show()
             true
         }
 
@@ -211,24 +242,35 @@ class CameraActivity2 : AppCompatActivity() {
         var countdown = 3
         countdownHandler.removeCallbacksAndMessages(null)
 
-        val countdownRunnable = object : Runnable {
-            override fun run() {
-                countdownText.text = countdown.toString() // update first
+        fun showNextNumber() {
+            if (countdown > 0) {
+                countdownText.text = countdown.toString()
 
-                if (countdown > 1) {
-                    countdown--
-                    countdownHandler.postDelayed(this, 1000)
-                } else {
-                    // show "1" for 1 second before taking photo
-                    countdownHandler.postDelayed({
-                        countdownText.visibility = View.GONE
-                        onComplete()
-                    }, 1000)
-                }
+                countdownText.scaleX = 0f
+                countdownText.scaleY = 0f
+                countdownText.alpha = 1f
+
+                val popScaleX = ObjectAnimator.ofFloat(countdownText, "scaleX", 0f, 2f, 1f)
+                val popScaleY = ObjectAnimator.ofFloat(countdownText, "scaleY", 0f, 2f, 1f)
+                val fadeOut = ObjectAnimator.ofFloat(countdownText, "alpha", 1f, 0f)
+
+                popScaleX.interpolator = android.view.animation.OvershootInterpolator()
+                popScaleY.interpolator = android.view.animation.OvershootInterpolator()
+
+                val animatorSet = AnimatorSet()
+                animatorSet.playTogether(popScaleX, popScaleY, fadeOut)
+                animatorSet.duration = 1000
+                animatorSet.start()
+
+                countdown--
+                countdownHandler.postDelayed({ showNextNumber() }, 1000)
+            } else {
+                countdownText.visibility = View.GONE
+                onComplete()
             }
         }
 
-        countdownHandler.post(countdownRunnable)
+        showNextNumber()
     }
 
     private fun capturePhoto(onSaved: () -> Unit) {
@@ -243,7 +285,9 @@ class CameraActivity2 : AppCompatActivity() {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     var bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
                     bitmap = rotateImageIfRequired(photoFile.absolutePath, mirror = (lensFacing == CameraSelector.LENS_FACING_FRONT))
-                    val finalBitmap = mergeWithBackground(bitmap)
+
+                    val bgMerged = mergeWithBackground(bitmap)
+                    val finalBitmap = mergeWithFrame(bgMerged) // ✅ FRAME APPLIED
 
                     FileOutputStream(photoFile).use {
                         finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
@@ -259,10 +303,24 @@ class CameraActivity2 : AppCompatActivity() {
             })
     }
 
+    private fun mergeWithFrame(photo: Bitmap): Bitmap {
+        val frameDrawable = frameOverlay.drawable as? BitmapDrawable ?: return photo
+        val frame = Bitmap.createScaledBitmap(frameDrawable.bitmap, photo.width, photo.height, true)
+
+        val result = Bitmap.createBitmap(photo.width, photo.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(result)
+
+        canvas.drawBitmap(photo, 0f, 0f, null)
+        canvas.drawBitmap(frame, 0f, 0f, null)
+
+        return result
+    }
+
+    // ---------------- REMAINING ORIGINAL CODE (UNCHANGED) ----------------
     private fun mergeWithBackground(foreground: Bitmap): Bitmap {
         val bgDrawable = backgroundOverlay.drawable as? BitmapDrawable ?: return foreground
-        val background = Bitmap.createScaledBitmap(bgDrawable.bitmap, foreground.width, foreground.height, true)
 
+        val background = Bitmap.createScaledBitmap(bgDrawable.bitmap, foreground.width, foreground.height, true)
         val fgSmall = Bitmap.createScaledBitmap(foreground, foreground.width / 4, foreground.height / 4, true)
         val bgSmall = Bitmap.createScaledBitmap(background, fgSmall.width, fgSmall.height, true)
 
@@ -299,7 +357,6 @@ class CameraActivity2 : AppCompatActivity() {
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 
-    // ---------------- FAST GREEN SCREEN ----------------
     private fun processFrame(imageProxy: ImageProxy) {
         val bitmap = imageProxy.toBitmap() ?: run { imageProxy.close(); return }
 

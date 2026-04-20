@@ -1,182 +1,176 @@
 package com.example.snapitout.utils
 
+import android.content.Context
 import android.graphics.*
 import java.io.File
 import java.io.FileOutputStream
-import kotlin.random.Random
-import android.content.Context
-import androidx.core.content.ContextCompat
-
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 object CollageUtils {
 
-    /** 🎨 1. Clean scrapbook-style collage (random but well-spaced) */
-    fun createScrapbookCollage(bitmaps: List<Bitmap>): Bitmap {
-        if (bitmaps.isEmpty()) throw IllegalArgumentException("No images provided")
+    /** 🔥 PHOTO MOSAIC (FIXED — NO RIGHT/BOTTOM GAPS) */
+    fun createPhotoMosaic(
+        context: Context,
+        mainImage: Bitmap,
+        tiles: List<Bitmap>
+    ): Bitmap? {
 
-        val collageWidth = 1080
-        val collageHeight = 1080
-        val collageBitmap = Bitmap.createBitmap(collageWidth, collageHeight, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(collageBitmap)
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        if (tiles.isEmpty()) return null
 
-        // Background color
-        canvas.drawColor(Color.WHITE)
+        val width = 1080
+        val height = 1080
 
-        val random = Random(System.currentTimeMillis())
-        val maxImageSize = collageWidth / 3
-
-        bitmaps.forEach { original ->
-            val scale = (0.6f + random.nextFloat() * 0.5f)
-            val newWidth = (maxImageSize * scale).toInt().coerceAtLeast(100)
-            val newHeight = (original.height * newWidth / original.width).coerceAtLeast(100)
-            val resized = Bitmap.createScaledBitmap(original, newWidth, newHeight, true)
-
-            val x = random.nextInt(0, (collageWidth - newWidth).coerceAtLeast(1))
-            val y = random.nextInt(0, (collageHeight - newHeight).coerceAtLeast(1))
-
-            val rotation = random.nextInt(-25, 25).toFloat()
-
-            canvas.save()
-            canvas.rotate(rotation, x + newWidth / 2f, y + newHeight / 2f)
-            canvas.drawBitmap(resized, x.toFloat(), y.toFloat(), paint)
-            canvas.restore()
-        }
-
-        return collageBitmap
-    }
-
-    /** 🧩 2. Clean and balanced 2×2 collage with spacing */
-    fun createMegaCollage(bitmaps: List<Bitmap>): Bitmap? {
-        if (bitmaps.isEmpty()) return null
-
-        val cols = 2
-        val rows = 2
-        val frameSize = 25
-        val finalSize = 900
-        val cellSize = (finalSize - frameSize * (cols + 1)) / cols
-
-        val result = Bitmap.createBitmap(finalSize, finalSize, Bitmap.Config.ARGB_8888)
+        val scaledMain = Bitmap.createScaledBitmap(mainImage, width, height, true)
+        val result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(result)
-        canvas.drawColor(Color.WHITE)
+
+        val gridSize = 50
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-        bitmaps.take(4).forEachIndexed { i, bmp ->
-            val row = i / cols
-            val col = i % cols
-            val left = frameSize + col * (cellSize + frameSize)
-            val top = frameSize + row * (cellSize + frameSize)
-
-            val scaled = Bitmap.createScaledBitmap(bmp, cellSize, cellSize, true)
-            val angle = Random.nextInt(-5, 5)
-
-            canvas.save()
-            canvas.rotate(angle.toFloat(), left + cellSize / 2f, top + cellSize / 2f)
-
-            // Drop shadow
-            val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                setShadowLayer(8f, 4f, 4f, Color.argb(80, 0, 0, 0))
-            }
-            canvas.drawRect(
-                left.toFloat(), top.toFloat(),
-                (left + cellSize).toFloat(), (top + cellSize).toFloat(), shadowPaint
-            )
-
-            // Image
-            canvas.drawBitmap(scaled, left.toFloat(), top.toFloat(), paint)
-
-            // Frame
-            val framePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                style = Paint.Style.STROKE
-                strokeWidth = 8f
-                color = Color.WHITE
-            }
-            canvas.drawRect(
-                left.toFloat(), top.toFloat(),
-                (left + cellSize).toFloat(), (top + cellSize).toFloat(), framePaint
-            )
-
-            canvas.restore()
+        // Precompute tile average colors
+        val tileData = tiles.map { tile ->
+            tile to getAverageColor(tile)
         }
+
+        for (y in 0 until gridSize) {
+            for (x in 0 until gridSize) {
+
+                // ✅ FIX: perfect edge coverage (no leftover pixels)
+                val left = (x * width) / gridSize
+                val top = (y * height) / gridSize
+                val right = ((x + 1) * width) / gridSize
+                val bottom = ((y + 1) * height) / gridSize
+
+                val cellWidth = right - left
+                val cellHeight = bottom - top
+
+                val targetColor = getAverageColorFromRegion(
+                    scaledMain,
+                    left,
+                    top,
+                    cellWidth,
+                    cellHeight
+                )
+
+                val bestTile = tileData.minByOrNull {
+                    colorDistance(it.second, targetColor)
+                }!!.first
+
+                val scaledTile = Bitmap.createScaledBitmap(
+                    bestTile,
+                    cellWidth,
+                    cellHeight,
+                    true
+                )
+
+                canvas.drawBitmap(
+                    scaledTile,
+                    left.toFloat(),
+                    top.toFloat(),
+                    paint
+                )
+            }
+        }
+
+        // subtle overlay for better blending
+        val overlayPaint = Paint().apply {
+            alpha = 80
+        }
+
+        canvas.drawBitmap(scaledMain, 0f, 0f, overlayPaint)
 
         return result
     }
 
-    /** ❤️ 3. Shape collage (auto-fills shape depending on photo count) */
-    fun createShapeCollage(bitmaps: List<Bitmap>, mask: Bitmap): Bitmap? {
-        if (bitmaps.isEmpty()) return null
+    /** 🎯 Average color of full bitmap */
+    private fun getAverageColor(bitmap: Bitmap): Int {
+        var r = 0L
+        var g = 0L
+        var b = 0L
+        var count = 0
 
-        val collageWidth = mask.width
-        val collageHeight = mask.height
-        val collage = Bitmap.createBitmap(collageWidth, collageHeight, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(collage)
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-
-        // Determine how many grid cells to fill based on shape size
-        val gridSize = 15 // higher = smaller photos, more fill precision
-        val cellWidth = collageWidth / gridSize
-        val cellHeight = collageHeight / gridSize
-
-        // 🔁 Duplicate images if needed to fill shape evenly
-        val neededCount = gridSize * gridSize
-        val repeatedList = mutableListOf<Bitmap>()
-        while (repeatedList.size < neededCount) {
-            repeatedList.addAll(bitmaps)
-        }
-
-        // Trim the excess
-        val filledImages = repeatedList.take(neededCount)
-
-        var index = 0
-        for (i in 0 until gridSize) {
-            for (j in 0 until gridSize) {
-                val x = j * cellWidth
-                val y = i * cellHeight
-
-                // Check if cell center is inside the shape (white area)
-                val centerX = (x + cellWidth / 2).coerceAtMost(collageWidth - 1)
-                val centerY = (y + cellHeight / 2).coerceAtMost(collageHeight - 1)
-                if (Color.red(mask.getPixel(centerX, centerY)) > 200) {
-                    val bmp = filledImages[index % filledImages.size]
-                    val scaled = Bitmap.createScaledBitmap(bmp, cellWidth, cellHeight, true)
-                    canvas.drawBitmap(scaled, x.toFloat(), y.toFloat(), paint)
-                    scaled.recycle()
-                    index++
-                }
+        for (x in 0 until bitmap.width step 5) {
+            for (y in 0 until bitmap.height step 5) {
+                val pixel = bitmap.getPixel(x, y)
+                r += Color.red(pixel)
+                g += Color.green(pixel)
+                b += Color.blue(pixel)
+                count++
             }
         }
 
-        // Apply the mask to keep only the shape visible
-        val result = Bitmap.createBitmap(collageWidth, collageHeight, Bitmap.Config.ARGB_8888)
-        val maskCanvas = Canvas(result)
-        val maskPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_IN)
+        if (count == 0) return Color.BLACK
+
+        return Color.rgb(
+            (r / count).toInt(),
+            (g / count).toInt(),
+            (b / count).toInt()
+        )
+    }
+
+    /** 🔥 Average color of region */
+    private fun getAverageColorFromRegion(
+        bitmap: Bitmap,
+        startX: Int,
+        startY: Int,
+        width: Int,
+        height: Int
+    ): Int {
+
+        var r = 0L
+        var g = 0L
+        var b = 0L
+        var count = 0
+
+        val step = 3
+
+        for (x in startX until (startX + width) step step) {
+            for (y in startY until (startY + height) step step) {
+
+                val px = x.coerceAtMost(bitmap.width - 1)
+                val py = y.coerceAtMost(bitmap.height - 1)
+
+                val pixel = bitmap.getPixel(px, py)
+
+                r += Color.red(pixel)
+                g += Color.green(pixel)
+                b += Color.blue(pixel)
+                count++
+            }
         }
-        maskCanvas.drawBitmap(collage, 0f, 0f, null)
-        maskCanvas.drawBitmap(mask, 0f, 0f, maskPaint)
 
-        return result
+        if (count == 0) return Color.BLACK
+
+        return Color.rgb(
+            (r / count).toInt(),
+            (g / count).toInt(),
+            (b / count).toInt()
+        )
     }
 
-    fun getBitmapFromDrawable(context: Context, drawableId: Int, width: Int, height: Int): Bitmap {
-        val drawable = ContextCompat.getDrawable(context, drawableId)!!
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        drawable.setBounds(0, 0, width, height)
-        drawable.draw(canvas)
-        return bitmap
+    /** 🎯 Color distance matching */
+    private fun colorDistance(c1: Int, c2: Int): Double {
+        val r = Color.red(c1) - Color.red(c2)
+        val g = Color.green(c1) - Color.green(c2)
+        val b = Color.blue(c1) - Color.blue(c2)
+
+        return sqrt(
+            r.toDouble().pow(2) +
+                    g.toDouble().pow(2) +
+                    b.toDouble().pow(2)
+        )
     }
 
-
-
-
-    /** 💾 4. Save any Bitmap to album folder */
-    fun saveBitmapToAlbum(bitmap: Bitmap, folder: File, prefix: String = "SnapIt_Collage_"): File? {
+    /** 💾 Save bitmap */
+    fun saveBitmapToAlbum(bitmap: Bitmap, folder: File): File? {
         if (!folder.exists()) folder.mkdirs()
-        val file = File(folder, "$prefix${System.currentTimeMillis()}.jpg")
+
+        val file = File(folder, "SnapIt_Mosaic_${System.currentTimeMillis()}.jpg")
+
         return try {
-            FileOutputStream(file).use { out ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+            FileOutputStream(file).use {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, it)
             }
             file
         } catch (e: Exception) {

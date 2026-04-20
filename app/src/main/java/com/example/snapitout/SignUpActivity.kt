@@ -57,26 +57,34 @@ class SignUpActivity : AppCompatActivity() {
             mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        // Save user info locally
-                        val prefs = getSharedPreferences("SnapItOutPrefs", MODE_PRIVATE)
+                        // Get the UID of the newly created user
+                        val uid = mAuth.currentUser?.uid ?: "default"
+
+                        // Save user info locally in user_prefs
+                        val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
                         prefs.edit()
-                            .putString("username", name)
-                            .putString("email", email)
+                            .putString("username_$uid", name)
+                            .putString("email_$uid", email)
                             .putBoolean("eventMode", false)
                             .apply()
 
+                        // Also update Firebase displayName
+                        val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                            .setDisplayName(name)
+                            .build()
+                        mAuth.currentUser?.updateProfile(profileUpdates)
+
                         Toast.makeText(this, "Account Created!", Toast.LENGTH_SHORT).show()
 
-                        // Go to LoginActivity after successful sign up
                         val intent = Intent(this, LoginActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         startActivity(intent)
-                        finish() // Close the SignUpActivity
                     } else {
-                        // Handle sign-up failure
                         Toast.makeText(this, "Sign Up Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
         }
+
 
         goToLogin.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))

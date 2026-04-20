@@ -68,63 +68,59 @@
     <LinearLayout
         android:id="@+id/toolButtons"
         android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_height="35dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:gravity="center"
         android:orientation="horizontal"
-        android:paddingStart="0dp"
         android:weightSum="4"
         app:layout_constraintBottom_toTopOf="@+id/frameContainer1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header">
 
-
         <ImageButton
             android:id="@+id/btnAddText"
-            android:layout_width="5dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_weight="0.5"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
             android:background="@drawable/addtext"
             android:contentDescription="Add Text" />
 
-
         <ImageButton
             android:id="@+id/btnAddSticker"
-            android:layout_width="5dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_weight="0.5"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
             android:background="@drawable/addsticker"
             android:contentDescription="Add Sticker" />
 
-
         <ImageButton
             android:id="@+id/btnAddImage"
-            android:layout_width="5dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_weight="0.5"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
             android:background="@drawable/addimage"
             android:contentDescription="Add Image" />
 
-
         <ImageButton
             android:id="@+id/btnColorPicker"
-            android:layout_width="5dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_weight="0.5"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
             android:background="@drawable/colorpicker"
             android:contentDescription="Pick Color" />
     </LinearLayout>
+
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/frameContainer1"
