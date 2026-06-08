@@ -44,7 +44,10 @@ android {
 dependencies {
 
 
-
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+// for lifecycleScope in Activities
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
 
     implementation ("com.google.mlkit:segmentation-selfie:16.0.0-beta3")
 

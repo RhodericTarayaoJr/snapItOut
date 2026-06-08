@@ -1,6 +1,7 @@
 package com.example.snapitout
 
 import android.content.Intent
+import com.example.snapitout.repo.PhotoRepository
 import android.graphics.*
 import android.net.Uri
 import android.os.Bundle
@@ -70,8 +71,13 @@ class EditingActivity : AppCompatActivity() {
             findViewById(R.id.mainFrame4)
         )
 
-        // Load current user
-        currentUserId = prefs.getString("current_user_id", "default_user") ?: "default_user"
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            Toast.makeText(this, "Please sign in first", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+        currentUserId = uid
 
         // Load photos from intent
         val selectedUris = intent.getParcelableArrayListExtra<Uri>("selected_images")
@@ -199,6 +205,9 @@ class EditingActivity : AppCompatActivity() {
 
                 if (!success) throw Exception("Bitmap compression failed")
 
+                // ☁️ NEW: back up to Cloudinary in the background
+                PhotoRepository.get(this).enqueueSave(file, currentUserId)
+
                 val uri = Uri.fromFile(file)
                 sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri))
 
@@ -241,6 +250,8 @@ class EditingActivity : AppCompatActivity() {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
                 out.flush()
                 out.close()
+                // ☁️ NEW: back up each individual image too
+                PhotoRepository.get(this).enqueueSave(file, currentUserId)
 
                 val uri = Uri.fromFile(file)
                 sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri))

@@ -1,6 +1,9 @@
 package com.example.snapitout
 
 import android.app.Activity
+import androidx.lifecycle.lifecycleScope
+import com.example.snapitout.repo.PhotoRepository
+import kotlinx.coroutines.launch
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.*
@@ -25,6 +28,7 @@ import java.util.*
 
 class AlbumActivity : AppCompatActivity() {
 
+    private val photoRepo by lazy { PhotoRepository.get(this) }
 
     private var isCollageModeOpen = false
     private lateinit var collageContainer: LinearLayout
@@ -126,14 +130,27 @@ class AlbumActivity : AppCompatActivity() {
             finish()
         }
 
-        val prefs = getSharedPreferences("SnapItOutPrefs", MODE_PRIVATE)
-        currentUserId = prefs.getString("current_user_id", "default_user") ?: "default_user"
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            Toast.makeText(this, "Please sign in to view your album", Toast.LENGTH_LONG).show()
+            startActivity(Intent(this, LoginActivity::class.java)) // 🔧 your sign-in screen
+            finish()
+            return
+        }
+        currentUserId = uid
 
         val picturesDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         albumFolder = File(picturesDir, "SnapItOut_$currentUserId")
         if (!albumFolder.exists()) albumFolder.mkdirs()
 
+        // show local images immediately (offline-first)
         loadAlbumImages()
+
+// then sync with the cloud in the background
+        lifecycleScope.launch {
+            val changed = photoRepo.syncWithCloud(currentUserId, albumFolder)
+            if (changed) loadAlbumImages()
+        }
     }
 
     // =========================
@@ -291,7 +308,7 @@ class AlbumActivity : AppCompatActivity() {
         FileOutputStream(file).use { out ->
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
         }
-
+        photoRepo.enqueueSave(file, currentUserId)   // ☁️ NEW
         loadAlbumImages()
     }
 
@@ -680,7 +697,12 @@ class AlbumActivity : AppCompatActivity() {
     // DELETE
     // =========================
     private fun deleteSelectedImages() {
-        selectedImages.forEach { File(it.path ?: "").delete() }
+        selectedImages.forEach { uri ->
+            val f = File(uri.path ?: "")
+            val name = f.name
+            f.delete()
+            photoRepo.enqueueDelete(currentUserId, name)   // ☁️ NEW
+        }
         selectedImages.clear()
         loadAlbumImages()
     }
