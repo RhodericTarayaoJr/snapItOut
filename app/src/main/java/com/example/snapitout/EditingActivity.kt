@@ -189,6 +189,7 @@ class EditingActivity : AppCompatActivity() {
             try {
                 val albumFolder = File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "SnapItOut_$currentUserId")
                 if (!albumFolder.exists()) albumFolder.mkdirs()
+                saveIndividualImages(albumFolder)
 
                 val file = File(albumFolder, filename)
                 val outputStream = FileOutputStream(file)
@@ -212,6 +213,40 @@ class EditingActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e("EditingActivity", "Error saving collage", e)
                 Toast.makeText(this, "Failed to save collage: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun saveIndividualImages(albumFolder: File) {
+
+        for (i in mainFrames.indices) {
+
+            val imageView = mainFrames[i]
+
+            // create bitmap of EACH imageView only
+            val bitmap = Bitmap.createBitmap(
+                imageView.width,
+                imageView.height,
+                Bitmap.Config.ARGB_8888
+            )
+
+            val canvas = Canvas(bitmap)
+            imageView.draw(canvas)
+
+            val filename = "SnapIt_Image_${i + 1}_${System.currentTimeMillis()}.jpg"
+            val file = File(albumFolder, filename)
+
+            try {
+                val out = FileOutputStream(file)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+                out.flush()
+                out.close()
+
+                val uri = Uri.fromFile(file)
+                sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri))
+
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }

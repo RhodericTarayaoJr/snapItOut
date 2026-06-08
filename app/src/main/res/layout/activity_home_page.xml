@@ -217,7 +217,7 @@
         app:layout_constraintHorizontal_bias="0.9"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/materialToolbar2"
-        app:layout_constraintVertical_bias="0.997"
+        app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@drawable/album" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

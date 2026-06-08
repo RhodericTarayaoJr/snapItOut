@@ -66,23 +66,43 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintTop_toBottomOf="@id/materialToolbar"
-        app:layout_constraintBottom_toTopOf="@id/collageButtonGroup"
+        app:layout_constraintBottom_toTopOf="@+id/collageScrollView"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/materialToolbar">
 
         <GridLayout
             android:id="@+id/albumImageContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:alignmentMode="alignMargins"
             android:columnCount="3"
             android:orientation="horizontal"
             android:padding="8dp"
-            android:alignmentMode="alignMargins"
             android:useDefaultMargins="true" />
     </ScrollView>
 
     <!-- Collage Buttons -->
+
+    <HorizontalScrollView
+        android:id="@+id/collageScrollView"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="2dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/collageButtonGroup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:id="@+id/collageContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"/>
+    </HorizontalScrollView>
+
     <LinearLayout
         android:id="@+id/collageButtonGroup"
         android:layout_width="0dp"
@@ -99,10 +119,28 @@
             android:id="@+id/autoCollageButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
             android:layout_weight="1"
             android:backgroundTint="#E9D0BC"
             android:fontFamily="@font/lora"
-            android:text="Auto Collage"
+            android:text="Mosaic Collage"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            app:cornerRadius="12dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/collageButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="1"
+            android:backgroundTint="#E9D0BC"
+            android:fontFamily="@font/lora"
+            android:text="Collage"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="10sp"
@@ -115,7 +153,8 @@
             android:id="@+id/deleteButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
             android:layout_weight="1"
             android:backgroundTint="#E9D0BC"
             android:fontFamily="@font/lora"

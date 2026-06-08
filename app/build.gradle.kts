@@ -48,6 +48,12 @@ dependencies {
 
     implementation ("com.google.mlkit:segmentation-selfie:16.0.0-beta3")
 
+
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
     implementation ("androidx.core:core-splashscreen:1.0.1")
 
     implementation ("androidx.camera:camera-core:1.2.3")
@@ -60,6 +66,7 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-firestore-ktx")
+    androidTestImplementation(libs.androidx.rules)
 
     kapt ("com.github.bumptech.glide:compiler:4.15.1")
 

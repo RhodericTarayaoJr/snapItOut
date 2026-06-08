@@ -35,6 +35,7 @@ class HomePageActivity : AppCompatActivity() {
         // 👤 User Profile Icon
         val profileIcon: ImageView = findViewById(R.id.profileIcon)
 
+
         // 👉 Navigate to CameraActivity
         photoboothText.setOnClickListener {
             startActivity(Intent(this, CameraActivity::class.java))
@@ -71,6 +72,7 @@ class HomePageActivity : AppCompatActivity() {
         profileIcon.setOnClickListener {
             startActivity(Intent(this, UserActivity::class.java))
         }
+
     }
 
     private fun hideSystemUI() {
