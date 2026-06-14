@@ -44,6 +44,7 @@ android {
 dependencies {
 
 
+    implementation("com.google.firebase:firebase-firestore-ktx")
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 // for lifecycleScope in Activities

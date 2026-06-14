@@ -1,6 +1,7 @@
 package com.example.snapitout.repo
 
 import android.content.Context
+import android.util.Log
 import com.example.snapitout.cloud.CloudinaryUploader
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
@@ -47,17 +48,35 @@ class PhotoRepository private constructor(context: Context) {
     }
 
     private suspend fun uploadAndRecord(file: File, userId: String) {
-        if (!file.exists()) return
+        if (!file.exists()) {
+            Log.e("FirestoreDebug", "File does not exist")
+            return
+        }
+
+        Log.d("FirestoreDebug", "Uploading to Cloudinary...")
+
         val url = CloudinaryUploader.upload(file)
+
+        Log.d("FirestoreDebug", "Cloudinary URL: $url")
+
         val data = hashMapOf(
             "userId" to userId,
             "fileName" to file.name,
             "cloudUrl" to url,
             "createdAt" to file.lastModified()
         )
-        firestore.collection("users").document(userId)
-            .collection("photos").document(sanitize(file.name))
+
+        firestore.collection("users")
+            .document(userId)
+            .collection("photos")
+            .document(sanitize(file.name))
             .set(data)
+            .addOnSuccessListener {
+                Log.d("FirestoreDebug", "Firestore SAVE SUCCESS ✅")
+            }
+            .addOnFailureListener {
+                Log.e("FirestoreDebug", "Firestore ERROR ❌", it)
+            }
     }
 
     // ---------- SYNC (call on AlbumActivity load) ----------
